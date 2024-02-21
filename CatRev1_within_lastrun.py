@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2023.2.3),
-    on February 18, 2024, at 12:50
+    on February 20, 2024, at 18:19
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -129,7 +129,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\owner\\OneDrive - Yale University\\Collaborations\\Brooklyn_College\\category_reversal\\CatRev1_within_lastrun.py',
+        originPath='C:\\Users\\owner\\OneDrive - Yale University\\Collaborations\\Brooklyn_College\\categoricalReversalLerning\\CatRev1_within_lastrun.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
