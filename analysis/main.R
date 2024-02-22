@@ -5,10 +5,12 @@ files <- list.files("data/",pattern =  ".csv")
 rel_cols <- c("participant","task","phase","trials.thisRepN","response.corr")
 
 for (i in 1:length(files)) {
+  # read ith file
   temp <- read.csv(paste0("data/",files[i]))
 
+  # clean rows and get only relevant columns
   temp <- temp[!is.na(temp$phase),rel_cols]
-    
+  
   if (i == 1) {
     lf <- temp
   } else {

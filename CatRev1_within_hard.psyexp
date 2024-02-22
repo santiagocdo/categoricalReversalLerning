@@ -195,7 +195,7 @@
         <Param val="True" valType="bool" updates="constant" name="syncScreenRefresh"/>
       </KeyboardComponent>
       <CodeComponent name="code_random" plugin="None">
-        <Param val="import time&amp;#10;&amp;#10;# Define your string vector&amp;#10;string_vector = [&quot;design/CatRev1_trials_set1.csv&quot;, &quot;design/CatRev1_trials_set2.csv&quot;,&quot;design/CatRev1_trials_set3.csv&quot;, &quot;design/CatRev1_trials_set4.csv&quot;]&amp;#10;&amp;#10;# Use the hash of the current time as a seed for randomness&amp;#10;seed = hash(id(string_vector) + int(time.time()))&amp;#10;&amp;#10;# Generate a pseudo-random index&amp;#10;random_index = seed % len(string_vector)&amp;#10;&amp;#10;# Retrieve the pseudo-randomly selected element&amp;#10;random_csv = string_vector[random_index]&amp;#10;&amp;#10;# Print the pseudo-randomly selected element&amp;#10;print(&quot;Randomly selected element:&quot;, random_csv)" valType="extendedCode" updates="constant" name="Before Experiment"/>
+        <Param val="import time&amp;#10;&amp;#10;# Define your string vector&amp;#10;string_vector = [&quot;design/CatRev1_trials_set1_hard.csv&quot;, &quot;design/CatRev1_trials_set2_hard.csv&quot;,&quot;design/CatRev1_trials_set3_hard.csv&quot;, &quot;design/CatRev1_trials_set4_hard.csv&quot;]&amp;#10;&amp;#10;# Use the hash of the current time as a seed for randomness&amp;#10;seed = hash(id(string_vector) + int(time.time()))&amp;#10;&amp;#10;# Generate a pseudo-random index&amp;#10;random_index = seed % len(string_vector)&amp;#10;&amp;#10;# Retrieve the pseudo-randomly selected element&amp;#10;random_csv = string_vector[random_index]&amp;#10;&amp;#10;# Print the pseudo-randomly selected element&amp;#10;print(&quot;Randomly selected element:&quot;, random_csv)" valType="extendedCode" updates="constant" name="Before Experiment"/>
         <Param val="// Define your string vector&amp;#10;var stringVector = [&quot;design/CatRev1_trials_set1.csv&quot;, &quot;design/CatRev1_trials_set2.csv&quot;,&quot;design/CatRev1_trials_set3.csv&quot;, &quot;design/CatRev1_trials_set4.csv&quot;];&amp;#10;&amp;#10;// Generate a random index&amp;#10;var randomIndex = Math.floor(Math.random() * stringVector.length);&amp;#10;&amp;#10;// Retrieve the randomly selected element&amp;#10;var random_csv = stringVector[randomIndex];&amp;#10;&amp;#10;// Print the randomly selected element&amp;#10;console.log(&quot;Randomly selected element:&quot;, random_csv);" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
@@ -674,8 +674,8 @@
     <Routine name="nextTask"/>
     <LoopInitiator loopType="TrialHandler" name="phase">
       <Param name="Selected rows" updates="None" val="$tasksRows" valType="str"/>
-      <Param name="conditions" updates="None" val="[OrderedDict([('trialsRows', ' 0:16'), ('eachBlock', 1)]), OrderedDict([('trialsRows', ' 16:32'), ('eachBlock', 1)]), OrderedDict([('trialsRows', ' 32:48'), ('eachBlock', 1)]), OrderedDict([('trialsRows', ' 48:64'), ('eachBlock', 1)])]" valType="str"/>
-      <Param name="conditionsFile" updates="None" val="design/CatRev1_phase.csv" valType="file"/>
+      <Param name="conditions" updates="None" val="[OrderedDict([('trialsRows', ' 0:16'), ('eachBlock', 8)]), OrderedDict([('trialsRows', ' 16:32'), ('eachBlock', 4)]), OrderedDict([('trialsRows', ' 32:48'), ('eachBlock', 8)]), OrderedDict([('trialsRows', ' 48:64'), ('eachBlock', 4)])]" valType="str"/>
+      <Param name="conditionsFile" updates="None" val="design/CatRev1_phase_hard.csv" valType="file"/>
       <Param name="endPoints" updates="None" val="[0, 1]" valType="num"/>
       <Param name="isTrials" updates="None" val="False" valType="bool"/>
       <Param name="loopType" updates="None" val="sequential" valType="str"/>

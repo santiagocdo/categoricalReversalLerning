@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2023.2.3),
-    on February 20, 2024, at 22:55
+    on February 22, 2024, at 12:17
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -37,7 +37,7 @@ from psychopy.hardware import keyboard
 import time
 
 # Define your string vector
-string_vector = ["design/CatRev1_trials_set1.csv", "design/CatRev1_trials_set2.csv","design/CatRev1_trials_set3.csv", "design/CatRev1_trials_set4.csv"]
+string_vector = ["design/CatRev1_trials_set1_hard.csv", "design/CatRev1_trials_set2_hard.csv","design/CatRev1_trials_set3_hard.csv", "design/CatRev1_trials_set4_hard.csv"]
 
 # Use the hash of the current time as a seed for randomness
 seed = hash(id(string_vector) + int(time.time()))
@@ -820,7 +820,7 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
         # set up handler to look after randomisation of conditions etc
         phase = data.TrialHandler(nReps=1.0, method='sequential', 
             extraInfo=expInfo, originPath=-1,
-            trialList=data.importConditions('design/CatRev1_phase.csv', selection=tasksRows),
+            trialList=data.importConditions('design/CatRev1_phase_hard.csv', selection=tasksRows),
             seed=None, name='phase')
         thisExp.addLoop(phase)  # add the loop to the experiment
         thisPhase = phase.trialList[0]  # so we can initialise stimuli with some values
