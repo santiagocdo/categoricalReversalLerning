@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2023.2.3),
-    on February 22, 2024, at 12:17
+    on February 23, 2024, at 11:27
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -363,6 +363,13 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
         languageStyle='LTR',
         depth=0.0);
     ready_task = keyboard.Keyboard()
+    random_task = visual.TextStim(win=win, name='random_task',
+        text='',
+        font='Open Sans',
+        pos=(0, 0), height=0.05, wrapWidth=None, ori=0.0, 
+        color='white', colorSpace='rgb', opacity=None, 
+        languageStyle='LTR',
+        depth=-2.0);
     
     # --- Initialize components for Routine "fixation" ---
     text_fixation = visual.TextStim(win=win, name='text_fixation',
@@ -674,7 +681,7 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
     routineTimer.reset()
     
     # set up handler to look after randomisation of conditions etc
-    task = data.TrialHandler(nReps=1.0, method='random', 
+    task = data.TrialHandler(nReps=1.0, method='fullRandom', 
         extraInfo=expInfo, originPath=-1,
         trialList=data.importConditions('design/CatRev1_task.csv'),
         seed=None, name='task')
@@ -709,8 +716,9 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
         ready_task.keys = []
         ready_task.rt = []
         _ready_task_allKeys = []
+        random_task.setText(tasksRows)
         # keep track of which components have finished
-        nextTaskComponents = [next_task_ready, ready_task]
+        nextTaskComponents = [next_task_ready, ready_task, random_task]
         for thisComponent in nextTaskComponents:
             thisComponent.tStart = None
             thisComponent.tStop = None
@@ -780,6 +788,26 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
                     ready_task.duration = _ready_task_allKeys[-1].duration
                     # a response ends the routine
                     continueRoutine = False
+            
+            # *random_task* updates
+            
+            # if random_task is starting this frame...
+            if random_task.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                random_task.frameNStart = frameN  # exact frame index
+                random_task.tStart = t  # local t and not account for scr refresh
+                random_task.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(random_task, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.timestampOnFlip(win, 'random_task.started')
+                # update status
+                random_task.status = STARTED
+                random_task.setAutoDraw(True)
+            
+            # if random_task is active this frame...
+            if random_task.status == STARTED:
+                # update params
+                pass
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):

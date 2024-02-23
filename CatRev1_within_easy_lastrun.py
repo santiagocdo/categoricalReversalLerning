@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2023.2.3),
-    on February 20, 2024, at 22:54
+    on February 23, 2024, at 11:25
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -674,7 +674,7 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
     routineTimer.reset()
     
     # set up handler to look after randomisation of conditions etc
-    task = data.TrialHandler(nReps=1.0, method='random', 
+    task = data.TrialHandler(nReps=1.0, method='fullRandom', 
         extraInfo=expInfo, originPath=-1,
         trialList=data.importConditions('design/CatRev1_task.csv'),
         seed=None, name='task')
