@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2023.2.3),
-    on February 23, 2024, at 11:25
+    on February 25, 2024, at 13:58
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -10,6 +10,10 @@ If you publish work using this script the most relevant publication is:
         https://doi.org/10.3758/s13428-018-01193-y
 
 """
+
+import psychopy
+psychopy.useVersion('2023.2.3')
+
 
 # --- Import packages ---
 from psychopy import locale_setup
@@ -33,35 +37,19 @@ import sys  # to get file system encoding
 import psychopy.iohub as io
 from psychopy.hardware import keyboard
 
-# Run 'Before Experiment' code from code_random
-import time
-
-# Define your string vector
-string_vector = ["design/CatRev1_trials_set1_easy.csv", "design/CatRev1_trials_set2_easy.csv","design/CatRev1_trials_set3_easy.csv", "design/CatRev1_trials_set4_easy.csv"]
-
-# Use the hash of the current time as a seed for randomness
-seed = hash(id(string_vector) + int(time.time()))
-
-# Generate a pseudo-random index
-random_index = seed % len(string_vector)
-
-# Retrieve the pseudo-randomly selected element
-random_csv = string_vector[random_index]
-
-# Print the pseudo-randomly selected element
-print("Randomly selected element:", random_csv)
 # --- Setup global variables (available in all functions) ---
 # Ensure that relative paths start from the same directory as this script
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 # Store info about the experiment session
 psychopyVersion = '2023.2.3'
-expName = 'CatRev1_within'  # from the Builder filename that created this script
+expName = 'CRL1e'  # from the Builder filename that created this script
 expInfo = {
     'participant': f"{randint(0, 999999):06.0f}",
     'session': '001',
     'Age?': '',
     'Gender?': '',
     'Nationality?': '',
+    'Highest Educational Degree?': '',
     'date': data.getDateStr(),  # add a simple timestamp
     'expName': expName,
     'psychopyVersion': psychopyVersion,
@@ -127,7 +115,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version='',
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\owner\\OneDrive - Yale University\\Collaborations\\Brooklyn_College\\categoricalReversalLerning\\CatRev1_within_easy_lastrun.py',
+        originPath='C:\\Users\\owner\\OneDrive - Yale University\\Collaborations\\Brooklyn_College\\categoricalReversalLerning\\CRL1e_lastrun.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
@@ -178,7 +166,7 @@ def setupWindow(expInfo=None, win=None):
     if win is None:
         # if not given a window to setup, make one
         win = visual.Window(
-            size=[2560, 1440], fullscr=True, screen=0,
+            size=[1536, 864], fullscr=True, screen=0,
             winType='pyglet', allowStencil=False,
             monitor='testMonitor', color=[0,0,0], colorSpace='rgb',
             backgroundImage='', backgroundFit='none',
@@ -336,7 +324,7 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "infCons" ---
     informed_consent = visual.TextStim(win=win, name='informed_consent',
-        text='*** INFORMED CONSENT ***\n\nThis research investigates the psychological processes used when people learn to identify objects in the world. You are being asked to participate in this research study because you are a normal healthy adult, and we wish to better understand basic learning processes in your population. The purpose of this research is to gain more knowledge about the cognitive processes involved in simple forms of associative learning.\n\nIf you agree to participate, we will ask you to perform in a simple computer task that will last approximately 15 minutes. In this task, you will see a series of abstract images presented individually on the screen and your task will be to learn choose one of two response options for each image.  Also, you will be asked to respond quickly and accurately on your computer keyboard when the image appears.\n\n• Risks/Discomforts: There are no risks for participating in this study beyond those associated with normal computer use over a 15 min period.\n\n• Benefits: This research is not designed to directly benefit you, but your help with this study will advance basic science on the cognitive processes involved in predictive learning in normal healthy individuals. Ultimately, this research could lead to a better understanding of some of the associative learning processes that are negatively impacted by various psychological conditions (such as aging, dementia, etc).\n\n• Confidentiality: This study does not collect identifying information, and all data collected will remain anonymous. We will ask about your gender, age, and nationality, and we will record your performance in the task itself. However, this information will not be linked directly to any individual participant. The data we obtain will be stored indefinitely and may be shared publicly via online repositories for findings that are ultimately published.\n\nYour participation in this research is completely voluntary, and you will be able to stop at any time without penalty. If you have any questions, you can contact: Andrew R. Delamater (andrewd@brooklyn.cuny.edu). If you have any questions about your rights as a research participant or if you would like to talk to someone other than the researcher, you can contact CUNY Research Compliance Administrator at 646-664-8918 or HRPP@cuny.edu.\n\nIf you wish to participate in the study, please press the spacebar for additional instructions.',
+        text='*** INFORMED CONSENT ***\n\nThis research investigates the psychological processes used when people learn to identify objects in the world. You are being asked to participate in this research study because you are a normal healthy adult, and we wish to better understand basic learning processes in your population. The purpose of this research is to gain more knowledge about the cognitive processes involved in simple forms of associative learning.\n\nIf you agree to participate, we will ask you to perform in a simple computer task that will last approximately 12 minutes. In this task, you will see a series of abstract images presented individually on the screen and your task will be to learn to choose one of two response options for each image.  Also, you will be asked to respond quickly and accurately on your computer keyboard when the image appears.\n\n• Risks/Discomforts: There are no risks for participating in this study beyond those associated with normal computer use over a 15 min period.\n\n• Benefits: This research is not designed to directly benefit you, but your help with this study will advance basic science on the cognitive processes involved in predictive learning in normal healthy individuals. Ultimately, this research could lead to a better understanding of some of the associative learning processes that are negatively impacted by various psychological conditions (such as aging, dementia, etc).\n\n• Confidentiality: This study does not collect identifying information, and all data collected will remain anonymous. We will ask about your gender, age, and nationality, and we will record your performance in the task itself. However, this information will not be linked directly to any individual participant. The data we obtain will be stored indefinitely and may be shared publicly via online repositories for findings that are ultimately published.\n\nYour participation in this research is completely voluntary, and you will be able to stop at any time without penalty. If you have any questions, you can contact: Andrew R. Delamater (andrewd@brooklyn.cuny.edu). If you have any questions about your rights as a research participant or if you would like to talk to someone other than the researcher, you can contact CUNY Research Compliance Administrator at 646-664-8918 or HRPP@cuny.edu.\n\nIf you wish to participate in the study, please press the spacebar for additional instructions.',
         font='Open Sans',
         pos=(0, 0), height=0.02, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
@@ -676,7 +664,7 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
     # set up handler to look after randomisation of conditions etc
     task = data.TrialHandler(nReps=1.0, method='fullRandom', 
         extraInfo=expInfo, originPath=-1,
-        trialList=data.importConditions('design/CatRev1_task.csv'),
+        trialList=data.importConditions('design/CRL1_task.csv'),
         seed=None, name='task')
     thisExp.addLoop(task)  # add the loop to the experiment
     thisTask = task.trialList[0]  # so we can initialise stimuli with some values
@@ -820,7 +808,7 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
         # set up handler to look after randomisation of conditions etc
         phase = data.TrialHandler(nReps=1.0, method='sequential', 
             extraInfo=expInfo, originPath=-1,
-            trialList=data.importConditions('design/CatRev1_phase_easy.csv', selection=tasksRows),
+            trialList=data.importConditions('design/CRL1e_phase.csv', selection=tasksRows),
             seed=None, name='phase')
         thisExp.addLoop(phase)  # add the loop to the experiment
         thisPhase = phase.trialList[0]  # so we can initialise stimuli with some values
@@ -849,7 +837,7 @@ def run(expInfo, thisExp, win, inputs, globalClock=None, thisSession=None):
             # set up handler to look after randomisation of conditions etc
             trials = data.TrialHandler(nReps=eachBlock, method='random', 
                 extraInfo=expInfo, originPath=-1,
-                trialList=data.importConditions(random_csv, selection=trialsRows),
+                trialList=data.importConditions('design/CRL1e_trials_set1.csv', selection=trialsRows),
                 seed=None, name='trials')
             thisExp.addLoop(trials)  # add the loop to the experiment
             thisTrial = trials.trialList[0]  # so we can initialise stimuli with some values
