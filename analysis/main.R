@@ -60,7 +60,22 @@ for (i in 1:length(files)) {
     parPh1$first <- parPh2$first <- totPh1$first <- totPh2$first <- "first-total"
     temp <- rbind(totPh1,totPh2,parPh1,parPh2)
   }
-    
+  
+  # create a simpler subject ID
+  temp$subjectId <- paste0("P",i)
+  
+  # create a simpler subject ID
+  temp$goodSubject <- T
+  
+  # do they learn?  
+  test <- binom.test(sum(temp$response.corr),nrow(temp),0.5,alternative = "greater")
+  
+  if (test$p.value > 0.05) {
+    print(paste(temp$subjectId[1],temp$participant[1]))
+    temp$goodSubject <- F
+  }
+  
+  # combine subjects
   if (i == 1) {
     lf <- temp
   } else {
@@ -89,18 +104,19 @@ p1 <- ggplot(lf, aes(x=blocks,y=response.corr,col=condition2)) +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
   stat_summary(geom="line",position = position_dodge(0.2)) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-  facet_wrap(participant ~ .) +
+  facet_wrap(subjectId ~ .) +
   theme_bw()
+
 # reaction time
-p2 <- ggplot(lf[lf$response.rt < 7,], aes(x=blocks,y=response.rt,col=condition2,shape=task)) +
+lf$goodTrials <- ifelse(lf$response.rt > 0.2 & lf$response.rt < 7,T,F)
+p2 <- ggplot(lf[lf$goodTrials==T,], aes(x=blocks,y=response.rt,col=condition2,shape=task)) +
   labs(x="blocks", y="RT (sec.)",col="Task and\n Condition") +
   geom_vline(xintercept = 6.5, col="black") +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
-  stat_summary(geom="line",position = position_dodge(0.2)) +
-  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-  facet_wrap(participant ~ .) +
+  stat_summary(geom="line",fun = median,position = position_dodge(0.2)) +
+  # stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  facet_wrap(subjectId ~ .) +
   theme_bw()
-
 
 # visualize average
 
@@ -116,12 +132,12 @@ p3 <- ggplot(lf, aes(x=blocks,y=response.corr,col=condition2)) +
   theme_bw()
 
 # reaction time
-p4 <- ggplot(lf[lf$response.rt < 7,], aes(x=blocks,y=response.rt,col=condition2)) +
-  labs(title = "N=32",x="blocks", y="RT (sec.)",col="Task and\n Condition") +
+p4 <- ggplot(lf[lf$goodTrials == T,], aes(x=blocks,y=response.rt,col=condition2)) +
+  labs(title = "N=32",x="blocks", y="Median RT (sec.)",col="Task and\n Condition") +
   geom_vline(xintercept = 6.5, col="black") +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
-  stat_summary(geom="line",position = position_dodge(0.2)) +
-  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="line",fun=median,position = position_dodge(0.2)) +
+  # stat_summary(geom="errorbar",position = position_dodge(0.2)) +
   facet_grid(. ~ first) +
   theme_bw()
 
@@ -143,9 +159,16 @@ participants <- unique(temp$participant)
 
 # collapse by blocks
 library(dplyr)
-collapsed <- as.data.frame(lf %>% group_by(participant,first,task,difficulty,set,phase,
-                                      condition2,blocks,blocksPhase) %>% 
-  summarize(pCorrect=mean(response.corr,na.rm=T),mRt=mean(response.rt,na.rm=T)))
+collapsed <- as.data.frame(lf %>% group_by(participant,subjectId,first,task,difficulty,
+                                           set,phase,goodTrials) %>% 
+                             summarize(N=n()))
+temp <- collapsed[collapsed$goodTrials==F,]
+
+collapsed <- as.data.frame(lf %>% group_by(participant,subjectId,first,task,difficulty,
+                                           set,phase,condition2,blocks,blocksPhase) %>% 
+  summarize(pCorrect=mean(response.corr,na.rm=T),
+            avgRt=mean(response.rt,na.rm=T),
+            medRt=median(response.rt,na.rm=T)))
 
 # # split by conditions
 # total_reversed <- temp[temp$condition2 == "total-reversed",]
@@ -162,13 +185,14 @@ collapsed <- as.data.frame(lf %>% group_by(participant,first,task,difficulty,set
 relCols <- c("participant","first","difficulty","set")
 # reorder in wide format data base
 for (i in 1:length(participants)) {
+  # one participant
   temp <- collapsed[collapsed$participant==participants[i],]
+  # in order
   temp <- temp[order(temp$condition2,temp$blocks),]
   
-
   corr <- data.frame(t(temp$pCorrect))
   colnames(corr) <- paste0(temp$blocks,"-",temp$condition2)
-  rt <- data.frame(t(temp$mRt))
+  rt <- data.frame(t(temp$medRt))
   colnames(rt) <- paste0(temp$blocks,"-",temp$condition2)
   if (i == 1) {
     wf_corr <- cbind(temp[1,relCols],corr)
@@ -179,8 +203,7 @@ for (i in 1:length(participants)) {
   }
 }
 write.csv(wf_corr,"data/corr_average_blocks.csv",row.names = F)
-write.csv(wf_rt,"data/rt_average_blocks.csv",row.names = F)
+write.csv(wf_rt,"data/rt_median_blocks.csv",row.names = F)
 # write.csv(lf,"data/raw_all_participants.csv",row.names = F)
-
 
 
