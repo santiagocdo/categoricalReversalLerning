@@ -89,6 +89,9 @@ lf$blocks <- ifelse(lf$phase==1,lf$blocksPhase,lf$blocksPhase+max(lf$blocksPhase
 # create additional features paste condition and task
 lf$condition2 <- paste0(lf$task,"-",lf$condition)
 lf$condition2 <- factor(lf$condition2, levels = c("total-reversed","partial-reversed","partial-nonreversed"))
+# add good and bad trials
+lf$goodTrials <- ifelse(lf$response.rt > 0.2 & lf$response.rt < 7,T,F)
+
 
 # visualize using ggplot package
 if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
@@ -108,7 +111,6 @@ p1 <- ggplot(lf, aes(x=blocks,y=response.corr,col=condition2)) +
   theme_bw()
 
 # reaction time
-lf$goodTrials <- ifelse(lf$response.rt > 0.2 & lf$response.rt < 7,T,F)
 p2 <- ggplot(lf[lf$goodTrials==T,], aes(x=blocks,y=response.rt,col=condition2,shape=task)) +
   labs(x="blocks", y="RT (sec.)",col="Task and\n Condition") +
   geom_vline(xintercept = 6.5, col="black") +
@@ -157,6 +159,9 @@ summary(m)
 participants <- unique(temp$participant)
 
 
+
+
+
 # collapse by blocks
 library(dplyr)
 collapsed <- as.data.frame(lf %>% group_by(participant,subjectId,first,task,difficulty,
@@ -164,11 +169,55 @@ collapsed <- as.data.frame(lf %>% group_by(participant,subjectId,first,task,diff
                              summarize(N=n()))
 temp <- collapsed[collapsed$goodTrials==F,]
 
-collapsed <- as.data.frame(lf %>% group_by(participant,subjectId,first,task,difficulty,
-                                           set,phase,condition2,blocks,blocksPhase) %>% 
-  summarize(pCorrect=mean(response.corr,na.rm=T),
+collapsed <- as.data.frame(lf[lf$goodSubject==T&lf$goodTrials==T,] %>% 
+                             group_by(participant,subjectId,first,task,difficulty,
+                                      set,phase,condition2,blocks,blocksPhase) %>% 
+  summarize(nTrials=n(),
+            pCorrect=mean(response.corr,na.rm=T),
             avgRt=mean(response.rt,na.rm=T),
             medRt=median(response.rt,na.rm=T)))
+
+# correctness
+p1 <- ggplot(collapsed, aes(x=blocks,y=pCorrect,col=condition2)) +
+  labs(title = "N=32",x="blocks", y="p(correct)",col="Task and\n Condition") +
+  geom_vline(xintercept = 6.5, col="black") +
+  geom_hline(yintercept = 0.5) +
+  scale_x_continuous(breaks = seq(0,12,by=2)) +
+  stat_summary(geom="line",position = position_dodge(0.2)) +
+  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  facet_grid(. ~ first) +
+  theme_bw()
+
+collapsed <- as.data.frame(lf[lf$goodSubject==T&lf$goodTrials==T,] %>% 
+                             group_by(participant,subjectId,first,task,difficulty,
+                                      set,phase,condition2,blocks,blocksPhase,
+                                      response.corr) %>% 
+                             summarize(nTrials=n(),
+                                       avgRt=mean(response.rt,na.rm=T),
+                                       medRt=median(response.rt,na.rm=T)))
+
+# reaction time
+p2 <- ggplot(collapsed, aes(x=blocks,y=medRt,col=condition2,shape=task)) +
+  labs(title = "N=32",x="blocks", y="Median RT (sec.)",col="Task and\n Condition") +
+  geom_vline(xintercept = 6.5, col="black") +
+  scale_x_continuous(breaks = seq(0,12,by=2)) +
+  stat_summary(geom="line",fun=mean,position = position_dodge(0.2)) +
+  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  facet_grid(response.corr ~ first) +
+  theme_bw()
+
+m <- lmer(medRt~blocks*task+(blocks|participant),REML=F,collapsed[collapsed$phase==2,])
+summary(m)
+
+
+collapsed <- as.data.frame(lf[lf$goodSubject==T&lf$goodTrials==T,] %>% 
+                             group_by(participant,subjectId,first,task,difficulty,
+                                      set,phase,condition2,blocks,blocksPhase) %>% 
+                             summarize(nTrials=n(),
+                                       pCorrect=mean(response.corr,na.rm=T),
+                                       avgRt=mean(response.rt,na.rm=T),
+                                       medRt=median(response.rt,na.rm=T)))
+
 
 # # split by conditions
 # total_reversed <- temp[temp$condition2 == "total-reversed",]
@@ -204,6 +253,7 @@ for (i in 1:length(participants)) {
 }
 write.csv(wf_corr,"data/corr_average_blocks.csv",row.names = F)
 write.csv(wf_rt,"data/rt_median_blocks.csv",row.names = F)
-# write.csv(lf,"data/raw_all_participants.csv",row.names = F)
+write.csv(collapsed,"data/rt_median_blocks_long_format.csv",row.names = F)
+write.csv(lf,"data/raw_all_participants.csv",row.names = F)
 
 
