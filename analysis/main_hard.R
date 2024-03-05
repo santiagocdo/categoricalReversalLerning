@@ -2,7 +2,7 @@
 rm(list=ls(all=TRUE))
 
 # get files cotaning ".csv" from data folder
-files <- list.files("data/pilot_easy/",pattern =  ".csv")
+files <- list.files("data/pilot_hard/",pattern =  ".csv")
 
 # create vector with relevant columns to filter read csvs ("data/")
 # rel_cols <- c("participant","task","phase","Exemplars","r_correct","response.keys","trials.thisRepN","response.corr")
@@ -14,7 +14,7 @@ rel_cols <- c("participant","task","phase","Exemplars","r_correct","trials.thisR
 # loop files, clean them and bind them into a long format dataframe
 for (i in 1:length(files)) {
   # read ith file
-  temp <- read.csv(paste0("data/pilot_easy/",files[i]))
+  temp <- read.csv(paste0("data/pilot_hard/",files[i]))
 
   # clean rows and get only relevant columns
   temp <- temp[!is.na(temp$phase),rel_cols]
@@ -40,18 +40,19 @@ for (i in 1:length(files)) {
   # parPh1$condition <- "training"
   # for the non reversed and reversed in the partial we need tow work a bit
   temp1<-table(parPh1$Exemplars,parPh1$r_correct)
+  temp1 <- ifelse(temp1==0,0,1)
   temp2<-table(parPh2$Exemplars,parPh2$r_correct)
+  temp2 <- ifelse(temp2==0,0,1)
   non_reversed <- rownames(temp1)[temp1[,1]==temp2[,1]]
-  # parPh2$condition <- ifelse(parPh2$Exemplars==non_reversed[1] |
-  #                              parPh2$Exemplars==non_reversed[2] |
-  #                              parPh2$Exemplars==non_reversed[3] |
-  #                              parPh2$Exemplars==non_reversed[4],
-  #                            "nonreversed","reversed")
   parPh1$condition <- ifelse(parPh1$Exemplars==non_reversed[1] |
-                               parPh1$Exemplars==non_reversed[2],
+                               parPh1$Exemplars==non_reversed[2] |
+                               parPh1$Exemplars==non_reversed[3] |
+                               parPh1$Exemplars==non_reversed[4],
                              "nonreversed","reversed")
   parPh2$condition <- ifelse(parPh2$Exemplars==non_reversed[1] |
-                               parPh2$Exemplars==non_reversed[2],
+                               parPh2$Exemplars==non_reversed[2] |
+                               parPh2$Exemplars==non_reversed[3] |
+                               parPh2$Exemplars==non_reversed[4],
                              "nonreversed","reversed")
  
 
@@ -105,7 +106,7 @@ if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
 # correctness
 p1 <- ggplot(lf, aes(x=blocks,y=response.corr,col=condition2)) +
   labs(x="blocks", y="p(correct)",col="Task and\n Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
+  geom_vline(xintercept = 8.5, col="black") +
   geom_hline(yintercept = 0.5, col="black") +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
   stat_summary(geom="line",position = position_dodge(0.2)) +
@@ -116,7 +117,7 @@ p1 <- ggplot(lf, aes(x=blocks,y=response.corr,col=condition2)) +
 # reaction time
 p2 <- ggplot(lf[lf$goodTrials==T,], aes(x=blocks,y=response.rt,col=condition2,shape=task)) +
   labs(x="blocks", y="RT (sec.)",col="Task and\n Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
+  geom_vline(xintercept = 8.5, col="black") +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
   stat_summary(geom="line",fun = median,position = position_dodge(0.2)) +
   # stat_summary(geom="errorbar",position = position_dodge(0.2)) +
@@ -127,23 +128,23 @@ p2 <- ggplot(lf[lf$goodTrials==T,], aes(x=blocks,y=response.rt,col=condition2,sh
 
 # correctness
 p3 <- ggplot(lf, aes(x=blocks,y=response.corr,col=condition2)) +
-  labs(title = "N=32",x="blocks", y="p(correct)",col="Task and\n Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
+  labs(title = "N=8",x="blocks", y="p(correct)",col="Task and\n Condition") +
+  geom_vline(xintercept = 8.5, col="black") +
   geom_hline(yintercept = 0.5) +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
   stat_summary(geom="line",position = position_dodge(0.2)) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-  facet_grid(. ~ first) +
+  # facet_grid(. ~ first) +
   theme_bw()
 
 # reaction time
 p4 <- ggplot(lf[lf$goodTrials == T,], aes(x=blocks,y=response.rt,col=condition2)) +
-  labs(title = "N=32",x="blocks", y="Median RT (sec.)",col="Task and\n Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
+  labs(title = "N=8",x="blocks", y="Median RT (sec.)",col="Task and\n Condition") +
+  geom_vline(xintercept = 8.5, col="black") +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
   stat_summary(geom="line",fun=median,position = position_dodge(0.2)) +
   # stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-  facet_grid(. ~ first) +
+  # facet_grid(. ~ first) +
   theme_bw()
 
 
@@ -183,7 +184,7 @@ collapsed <- as.data.frame(lf[lf$goodSubject==T&lf$goodTrials==T,] %>%
 # correctness
 p1 <- ggplot(collapsed, aes(x=blocks,y=pCorrect,col=condition2)) +
   labs(title = "N=32",x="blocks", y="p(correct)",col="Task and\n Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
+  geom_vline(xintercept = 8.5, col="black") +
   geom_hline(yintercept = 0.5) +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
   stat_summary(geom="line",position = position_dodge(0.2)) +
@@ -202,7 +203,7 @@ collapsed <- as.data.frame(lf[lf$goodSubject==T&lf$goodTrials==T,] %>%
 # reaction time
 p2 <- ggplot(collapsed, aes(x=blocks,y=medRt,col=condition2,shape=task)) +
   labs(title = "N=32",x="blocks", y="Median RT (sec.)",col="Task and\n Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
+  geom_vline(xintercept = 8.5, col="black") +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
   stat_summary(geom="line",fun=mean,position = position_dodge(0.2)) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
@@ -239,19 +240,22 @@ relCols <- c("participant","first","difficulty","set")
 for (i in 1:length(participants)) {
   # one participant
   temp <- collapsed[collapsed$participant==participants[i],]
-  # in order
-  temp <- temp[order(temp$condition2,temp$blocks),]
   
-  corr <- data.frame(t(temp$pCorrect))
-  colnames(corr) <- paste0(temp$blocks,"-",temp$condition2)
-  rt <- data.frame(t(temp$medRt))
-  colnames(rt) <- paste0(temp$blocks,"-",temp$condition2)
-  if (i == 1) {
-    wf_corr <- cbind(temp[1,relCols],corr)
-    wf_rt <- cbind(temp[1,relCols],rt)
-  } else {
-    wf_corr <- rbind(wf_corr,cbind(temp[1,relCols],corr))
-    wf_rt <- rbind(wf_rt,cbind(temp[1,relCols],rt))
+  if (nrow(temp) != 0) {
+    # in order
+    temp <- temp[order(temp$condition2,temp$blocks),]
+    
+    corr <- data.frame(t(temp$pCorrect))
+    colnames(corr) <- paste0(temp$blocks,"-",temp$condition2)
+    rt <- data.frame(t(temp$medRt))
+    colnames(rt) <- paste0(temp$blocks,"-",temp$condition2)
+    if (i == 1) {
+      wf_corr <- cbind(temp[1,relCols],corr)
+      wf_rt <- cbind(temp[1,relCols],rt)
+    } else {
+      wf_corr <- rbind(wf_corr,cbind(temp[1,relCols],corr))
+      wf_rt <- rbind(wf_rt,cbind(temp[1,relCols],rt))
+    }
   }
 }
 write.csv(wf_corr,"data/corr_average_blocks.csv",row.names = F)
