@@ -69,8 +69,13 @@ clean_easy <- function () {
     temp$goodSubject <- T
     
     # do they learn?  
-    test <- binom.test(sum(temp$response.corr),nrow(temp),0.5,alternative = "greater")
-    
+    temp0 <- temp[temp$phase == 1,]
+    test <- binom.test(sum(temp0$response.corr), nrow(temp0), 0.5, alternative = "greater")
+    # temp0 <- temp[temp$phase == 1 & temp$task == "total",]
+    # testT <- binom.test(sum(temp0$response.corr),nrow(temp0), 0.5, alternative = "greater")
+    # temp0 <- temp[temp$phase == 1 & temp$task == "partial" & temp$trials.thisRepN > 4,]
+    # testP <- binom.test(sum(temp0$response.corr),nrow(temp0), 0.5, alternative = "greater")
+    # binom.test(212,384,0.5)
     if (test$p.value > 0.05) {
       print(paste(temp$subjectId[1],temp$participant[1]))
       temp$goodSubject <- F
@@ -168,8 +173,8 @@ clean_hard <- function() {
     temp$goodSubject <- T
     
     # do they learn?
-    temp0 <- temp[temp$trials.thisRepN != 0,]
-    test <- binom.test(sum(temp0$response.corr),nrow(temp0),0.5,alternative = "greater")
+    temp0 <- temp[temp$phase == 1,]
+    test <- binom.test(sum(temp0$response.corr), nrow(temp0), 0.5, alternative = "greater")
     
     if (test$p.value > 0.05) {
       print(paste(temp$subjectId[1],temp$participant[1]))
