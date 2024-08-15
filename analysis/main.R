@@ -6,6 +6,9 @@ source("analysis/functions.R")
 
 lfe <- clean_easy()
 lfh <- clean_hard()
+write.csv(lfe,"data/lf_easy.csv",row.names = F)
+write.csv(lfh,"data/lf_hard.csv",row.names = F)
+
 
 # visualize using ggplot package
 if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
@@ -18,8 +21,8 @@ if (!require(ggpubr)) {install.packages("ggpubr")}; library(ggpubr)
 # correctness
 pEasyCorr <- ggplot(lfe, aes(x=blocks,y=response.corr,col=condition2)) +
   labs(x="blocks", y="p(correct)",col="Task and Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
-  geom_hline(yintercept = 0.5, col="black") +
+  geom_vline(xintercept = 6.5, col="black", alpha=0.5) +
+  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
   scale_x_continuous(breaks = seq(0,12,by=2)) +
   stat_summary(geom="line",position = position_dodge(0.2)) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
@@ -60,8 +63,8 @@ pHardRT <- ggplot(lfh[lfh$goodTrials==T,], aes(x=blocks,y=response.rt,col=condit
 # correctness
 figA <- ggplot(lfe[lfe$goodTrials == T,], aes(x=blocks,y=response.corr,col=condition2)) +
   labs(x="blocks", y="p(correct)",col="Task and Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
-  geom_hline(yintercept = 0.5) +
+  geom_vline(xintercept = 6.5, col="black", alpha=0.5) +
+  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
   scale_x_continuous(breaks = seq(0,12,by=1)) +
   scale_y_continuous(breaks = seq(0,1,by=0.25)) +
   coord_cartesian(ylim = c(0.25,0.9)) +
@@ -245,6 +248,144 @@ if (print_fig == 1) {
          plot = figure2, width = 24, height = 24, units = "cm", dpi = 900, 
          limitsize = T)
 }
+
+
+
+
+
+# Gregynog 2024 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+figA <- ggplot(lfe[lfe$goodTrials == T,], 
+               aes(x=blocks,y=response.corr,
+                   col=condition2,shape=condition2,linetype=condition2)) +
+  labs(title="Easy version", x="blocks", y="p(correct)",
+       col="Task and Condition", shape="Task and Condition",
+       linetype="Task and Condition") +
+  coord_cartesian(ylim = c(0,1)) +
+  geom_vline(xintercept = 6.5, col="black", alpha=0.5) +
+  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
+  scale_x_continuous(breaks = seq(0,12,by=1)) +
+  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_shape_manual(values = c(15,19,21)) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
+  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="point",position = position_dodge(0.2),size=3,fill="white") +
+  # facet_grid(. ~ first) +
+  theme_bw()
+# figA
+
+figB <- ggplot(lfh[lfh$goodTrials == T,], 
+               aes(x=blocks,y=response.corr,
+                   col=condition2,shape=condition2,linetype=condition2)) +
+  labs(title="Hard version", x="blocks", y="p(correct)",
+       col="Task and Condition", shape="Task and Condition",
+       linetype="Task and Condition") +
+  coord_cartesian(ylim = c(0,1)) +
+  geom_vline(xintercept = 8.5, col="black", alpha=0.5) +
+  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
+  scale_x_continuous(breaks = seq(0,12,by=1)) +
+  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_shape_manual(values = c(15,19,21)) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
+  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="point",position = position_dodge(0.2),size=3,fill="white") +
+  # facet_grid(. ~ first) +
+  theme_bw()
+# figB
+
+
+
+# read output data
+# par <- read.csv("../ALANN/figures/mod2_50t_n16_rho0.05_mu0.05_partial/exp_partial_mod2_n16.csv")
+par <- read.csv("../ALANN/output/exp_partial_mod2_n32_beta0.9_rho0.01_mu0.01.csv")
+par$task <- "partial"
+# tot <- read.csv("../ALANN/figures/mod2_50t_n16_rho0.05_mu0.05_total/exp_total_mod2_n16.csv")
+tot <- read.csv("../ALANN/output/exp_total_mod2_n32_beta0.9_rho0.01_mu0.01.csv")
+tot$task <- "total"
+
+source("../ALANN/functions.R")
+db <- f_combine_sims(par,tot) 
+
+
+
+# visualize
+if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
+db$condition <- factor(db$condition, levels = c("reversed","nonreversed"))
+db$condition2 <- paste0(db$task,"-",db$condition)
+db$condition2 <- factor(db$condition2, levels = c("total-reversed","partial-reversed","partial-nonreversed"))
+figC <- ggplot(db[,], aes(x=nBlock,y=discScore,
+                           col=condition2,linetype=condition2)) +
+  labs(title = expression(rho==0.01*`;`~mu==0.01),
+       x="blocks",col="Task and Condition",
+       linetype="Task and Condition",#y=expression(act[target]*`/(`*act[target]+act[other]*`)`)
+       y="correct score") +
+  coord_cartesian(ylim = c(0,1)) +
+  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
+  geom_vline(xintercept = 200.5, col="black", alpha=0.5) +
+  scale_x_continuous(breaks = seq(0,400,by=100)) +
+  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
+  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  theme_bw() 
+# figC
+
+# read output data
+# par <- read.csv("../ALANN/figures/mod2_50t_n16_rho0.05_mu0.01_partial/exp_partial_mod2_n16.csv")
+par <- read.csv("../ALANN/output/exp_partial_mod2_n32_beta0.9_rho0.01_mu1e-04.csv")
+par$task <- "partial"
+# tot <- read.csv("../ALANN/figures/mod2_50t_n16_rho0.05_mu0.01_total/exp_total_mod2_n16.csv")
+tot <- read.csv("../ALANN/output/exp_total_mod2_n32_beta0.9_rho0.01_mu1e-04.csv")
+tot$task <- "total"
+
+db <- f_combine_sims(par,tot) 
+
+
+
+# visualize
+if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
+db$condition <- factor(db$condition, levels = c("reversed","nonreversed"))
+db$condition2 <- paste0(db$task,"-",db$condition)
+db$condition2 <- factor(db$condition2, levels = c("total-reversed","partial-reversed","partial-nonreversed"))
+figD <- ggplot(db[,], aes(x=nBlock,y=discScore,
+                          col=condition2,linetype=condition2)) +
+  labs(title = expression(rho==0.01*`;`~mu==0.0001),
+       x="blocks",col="Task and Condition",
+       linetype="Task and Condition",#y=expression(act[target]*`/(`*act[target]+act[other]*`)`)
+       y="correct score") +
+  coord_cartesian(ylim = c(0,1)) +
+  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
+  geom_vline(xintercept = 200.5, col="black", alpha=0.5) +
+  scale_x_continuous(breaks = seq(0,400,by=100)) +
+  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
+  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  theme_bw() 
+# figD
+
+
+
+
+plot <- ggarrange(figA,figC,figB,figD,nrow=2,ncol=2,common.legend = T,
+                  labels = c("A","C","B","D"))
+# plot
+
+ggsave(paste0("../ALANN/figures/fig2.png"), dpi = 2400, limitsize = TRUE,
+       plot = plot,
+       units = "in",
+       width = 6, #6000
+       height = 4.5) #4800
+
 
 
 
