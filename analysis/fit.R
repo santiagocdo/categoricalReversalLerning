@@ -37,8 +37,6 @@ ggplot(x, aes(x=x1,y=x2,fill=like)) + geom_tile()
 
 
 
-
-
 mle_map_rw <- function(stim, par, priors = NULL, choices, outcomes)  {
   # transform parameters
   lr <- fromInfTo01(par[1])
