@@ -17,18 +17,18 @@ if (!require(ggpubr)) {install.packages("ggpubr")}; library(ggpubr)
 # priors parameters
 priors <- list()
 priors$mu <- c(.25, 4) # Mean vector (mu)
-priors$Sigma <- matrix(c(2, 0, 0, 12), nrow = 2) # Covariance matrix (Sigma)
+priors$Sigma <- matrix(c(0.2, 0, 0, 2), nrow = 2) # Covariance matrix (Sigma)
 
 # priors for alpha
 x1 <- seq(0, 1, length=100)
 y1 <- dnorm(x1, mean = priors$mu[1], sd = priors$Sigma[1])
 qplot(x = x1, y = y1, geom = "line", xlab = expression(alpha[prior]), ylab = "Density") +
-  theme_minimal(base_size = 20) + ylim(c(0,.3))
+  theme_minimal(base_size = 20) #+ ylim(c(0,.3))
 # priors for beta
 x2 <- seq(0, 10, length=100)
 y2 <- dnorm(x2, mean = priors$mu[2], sd = priors$Sigma[4])
 qplot(x = x2, y = y2, geom = "line", xlab = expression(beta[prior]), ylab = "Density") +
-  theme_minimal(base_size = 20) + ylim(c(0,.3))
+  theme_minimal(base_size = 20) #+ ylim(c(0,.3))
 
 x <- data.frame(x1=rep(x1,each=length(x2)),x2=rep(x2,length(x1)))
 x <- data.frame(x,like=mvtnorm::dmvnorm(x, mean = priors$mu, sigma = priors$Sigma))
