@@ -13,6 +13,10 @@ clean_easy <- function () {
   for (i in 1:length(files)) {
     # read ith file
     temp <- read.csv(paste0("data/pilot_easy/",files[i]))
+   
+    # wide format and demographics
+    tempWf <- temp[1,c("participant","Age.","Gender.","Nationality.",
+                       "Highest.Educational.Degree.")]
     
     # clean rows and get only relevant columns
     temp <- temp[!is.na(temp$phase),rel_cols]
@@ -84,8 +88,10 @@ clean_easy <- function () {
     # combine subjects
     if (i == 1) {
       lf <- temp
+      wf <- tempWf
     } else {
       lf <- rbind(lf,temp)
+      wf <- rbind(wf,tempWf)
     }
   }
   # add 1 trial (in python 0 is 1)
@@ -98,7 +104,7 @@ clean_easy <- function () {
   # add good and bad trials
   lf$goodTrials <- ifelse(lf$response.rt > 0.2 & lf$response.rt < 7,T,F)
   
-  return(lf)
+  return(list(lf=lf,wf=wf))
 }
 
 clean_hard <- function() {
@@ -116,6 +122,11 @@ clean_hard <- function() {
   for (i in 1:length(files)) {
     # read ith file
     temp <- read.csv(paste0("data/pilot_hard/",files[i]))
+    
+    # wide format and demographics
+    tempWf <- temp[1,c("participant","Age.","Gender.","Nationality.",
+                       "Highest.Educational.Degree.")]
+    
     
     # clean rows and get only relevant columns
     temp <- temp[!is.na(temp$phase),rel_cols]
@@ -184,8 +195,10 @@ clean_hard <- function() {
     # combine subjects
     if (i == 1) {
       lf <- temp
+      wf <- tempWf
     } else {
       lf <- rbind(lf,temp)
+      wf <- rbind(wf,tempWf)
     }
   }
   # add 1 trial (in python 0 is 1)
@@ -198,6 +211,6 @@ clean_hard <- function() {
   # add good and bad trials
   lf$goodTrials <- ifelse(lf$response.rt > 0.2 & lf$response.rt < 7,T,F)
   
-  return(lf)
+  return(list(lf=lf,wf=wf))
 }
 

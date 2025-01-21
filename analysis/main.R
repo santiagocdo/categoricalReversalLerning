@@ -4,11 +4,25 @@ rm(list=ls(all=TRUE))
 # call my functions
 source("analysis/functions.R")
 
+# pool and clean easy experiment
 lfe <- clean_easy()
+wfe <- lfe$wf
+lfe <- lfe$lf
+
+# pool and clean hard experiment
 lfh <- clean_hard()
+wfh <- lfh$wf
+lfh <- lfh$lf
+
+# print long wide format
 write.csv(lfe,"data/lf_easy.csv",row.names = F)
 write.csv(lfh,"data/lf_hard.csv",row.names = F)
 
+# general characteristics
+mean(wfe$Age.,na.rm=T); sd(wfe$Age.,na.rm=T); range(wfe$Age.,na.rm=T)
+table(tolower(wfe$Gender.))
+mean(wfh$Age.,na.rm=T); sd(wfh$Age.,na.rm=T); range(wfh$Age.,na.rm=T)
+table(tolower(wfh$Gender.))
 
 # visualize using ggplot package
 if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
@@ -138,9 +152,15 @@ if (!require(lmerTest)) {install.packages("lmerTest")}; library(lmerTest)
 # all blocks
 m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
 summary(m)
+report::report_table(m)
 # first block
 m <- glmer(response.corr~task+(1|participant),family = binomial,temp[temp$blocksPhase==1,])
 summary(m)
+report::report_table(m)
+# what about reaction time
+m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
+summary(m)
+report::report_table(m)
 
 
 
@@ -162,10 +182,15 @@ figF <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2)) +
 # all blocks
 m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
 summary(m)
+report::report_table(m)
 # first block
 m <- glmer(response.corr~task+(1|participant),family = binomial,temp[temp$blocksPhase==1,])
 summary(m)
-
+report::report_table(m)
+# what about reaction time
+m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
+summary(m)
+report::report_table(m)
 
 
 # participant vector for easy experiment
