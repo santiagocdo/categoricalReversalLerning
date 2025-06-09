@@ -1,6 +1,14 @@
 # Remove all of the elements currently loaded in R
 rm(list=ls(all=TRUE))
 
+
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+library(ggpubr)
+
+
+
 # list of files
 files <- list.files("exemplars_similarity/data/")
 # keep only the ones with "CatSimMDS" and ".csv"
@@ -39,7 +47,7 @@ allSubj$right <- factor(allSubj$right, levels = exs)
 table(allSubj$left,allSubj$right)
 
 
-library(ggplot2)
+
 ggplot(allSubj, aes(x=slider.response)) + 
   geom_histogram(bins = 20, color="black", fill="white") +
   facet_wrap(partId ~ .)
@@ -112,7 +120,6 @@ exs1to8 <- exs[1:8]
 outputMatrix <- data.frame(matrix(NA, nrow = 8*8-8, ncol = 2+16))
 colnames(outputMatrix) <- c("exA","exB",partId[order(partId)])
 counter <- 0
-library(dplyr)
 for (i in 1:length(exs1to8)) {
   for (j in 1:length(exs1to8)) {
     filter <- ((allSubj$left == exs1to8[i] & allSubj$right == exs1to8[j]) | 
@@ -133,6 +140,7 @@ data <- outputMatrix[!is.na(outputMatrix$exA),3:18]
 # Compute distance matrix
 dist_matrix <- dist(t(data))
 dist_matrix <- read.csv("exemplars_similarity/similarityMatrixAverage_task1.csv")
+# dist_matrix <- read.csv("exemplars_similarity/similarityMatrixAverage_task2.csv")
 dist_matrix <- dist_matrix[,-1]
 dist_matrix <- as.dist(dist_matrix)
 
@@ -147,7 +155,8 @@ text(mds_result, labels = 1:8, pos = 3)  # Add labels if needed
 
 
 
-
+# read a csv that has been already averaged. This one contains the similariy matrices
+# for all the subjects and only half of the off diagonal matrix
 dist_matrix <- read.csv("exemplars_similarity/similarityMatrix_allPartOffDiagonals.csv")
 partId <- unique(dist_matrix$partId)
 for (i in 1:length(partId)) {
@@ -171,33 +180,42 @@ for (i in 1:length(partId)) {
                               t(c(mds_result_t2))))
   }
 }
+# name columns adequately to their exemplars
 colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8))
 colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16))
 
+
+
+# combination of numbers so we can compute the euclidean distance.
 ex1 <- combinat::combn(1:8,2)
 ex2 <- combinat::combn(9:16,2)
-
+# distance matrices
 dist1 <- matrix(NA, nrow=length(partId), ncol=ncol(ex1))
 dist2 <- matrix(NA, nrow=length(partId), ncol=ncol(ex2))
 
 for (i in 1:ncol(ex1)) {
+  # task 1
   pc1_1 <- psychCoord1[,grepl(ex1[1,i],colnames(psychCoord1))]
   pc1_2 <- psychCoord1[,grepl(ex1[2,i],colnames(psychCoord1))]
-
+  # euclidean distance
   dist1[,i] <- sqrt(rowSums((pc1_1[,] - pc1_2[,]) ^ 2))
   
-  pc2_1 <- psychCoord1[,grepl(ex2[1,i],colnames(psychCoord2))]
-  pc2_2 <- psychCoord1[,grepl(ex2[2,i],colnames(psychCoord2))]
-  
+  # task 2
+  pc2_1 <- psychCoord2[,grepl(ex2[1,i],colnames(psychCoord2))]
+  pc2_2 <- psychCoord2[,grepl(ex2[2,i],colnames(psychCoord2))]
+  # euclidean distance
   dist2[,i] <- sqrt(rowSums((pc2_1[,] - pc2_2[,]) ^ 2))
 }
 colnames(dist1) <- paste0(ex1[1,],"_",ex1[2,])
 colnames(dist2) <- paste0(ex2[1,],"_",ex2[2,])
 
+# combine with psychological space
 psychCoord1 <- cbind(psychCoord1,dist1)
 psychCoord2 <- cbind(psychCoord2,dist2)
 
-library("reshape2")
+
+
+# # # # # Euclidean Distances for Test 1 # # # # #
 lf_dist1 <- melt(psychCoord1, measure.vars = paste0(ex1[1,],"_",ex1[2,]))
 lf_dist1$group <- recode(lf_dist1$variable, 
                          "1_2"="cat1","1_3"="cat1","1_4"="cat1","1_5"="between", 
@@ -211,34 +229,43 @@ lf_dist1$group <- recode(lf_dist1$variable,
                          "6_8"="cat2", "7_8"="cat2")
 lf_dist1$cat_type <- ifelse(lf_dist1$group == "between","between","within")
 
-anno <- data.frame(x1 = c(1), x2 = c(2), y1 = c(8), y2 = c(8.2), 
-                   xstar = c(1.5), ystar = c(8.5), lab = c("ns"))
+anno <- data.frame(x1 = c(1), x2 = c(2), y1 = c(8.8), y2 = c(9), 
+                   xstar = c(1.5), ystar = c(9.3), lab = c("ns"))
 
 t.test(lf_dist1$value[lf_dist1$group=="cat1"],lf_dist1$value[lf_dist1$group=="cat2"])
+shapiro.test(lf_dist1$value[lf_dist1$group=="cat1"])
+wilcox.test(lf_dist1$value[lf_dist1$group=="cat1"],lf_dist1$value[lf_dist1$group=="cat2"])
 p_task1_cat <- ggplot(lf_dist1[lf_dist1$cat_type=="within",], 
        aes(x=group,y=value)) + 
-  labs(x = "Category", y="Euclidian Distance") +
-  geom_boxplot() + geom_jitter(alpha=0.2, shape=16) + stat_summary() +
+  labs(x = "Category (task 1)", y="Euclidian Distance") +
+  geom_violin(col = "grey80") + geom_boxplot(col = "grey20") + 
+  geom_jitter(alpha=.2, width = .1, shape=16) + stat_summary() +
   geom_segment(data=anno, aes(x=x1,xend=x2,y=y2,yend=y2),inherit.aes=F) +
   geom_segment(data=anno, aes(x=x1,xend=x1,y=y1,yend=y2),inherit.aes=F) +
   geom_segment(data=anno, aes(x=x2,xend=x2,y=y1,yend=y2),inherit.aes=F) +
   geom_text(data=anno, aes(x = xstar,  y = ystar, label = lab), inherit.aes=F) +
-  scale_x_discrete(labels=c("1 to 4","5 to 8")) +
+  scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
+  scale_x_discrete(labels=c("A to D","E to H")) +
   theme_classic()
 
 t.test(lf_dist1$value[lf_dist1$cat_type=="between"],lf_dist1$value[lf_dist1$cat_type!="between"])
+shapiro.test(lf_dist1$value[lf_dist1$cat_type=="between"])
+wilcox.test(lf_dist1$value[lf_dist1$cat_type=="between"],lf_dist1$value[lf_dist1$cat_type!="between"])
 p_task1_type <- ggplot(lf_dist1, aes(x=cat_type,y=value)) + 
-  labs(x = "Type", y="Euclidian Distance") +
-  geom_boxplot() + geom_jitter(alpha=0.2, shape=16) + stat_summary() +
+  labs(x = "Type (task 1)", y="Euclidian Distance") +
+  geom_violin(col = "grey80") + geom_boxplot(col = "grey20") + 
+  geom_jitter(alpha=.2, width = .1, shape=16) + stat_summary() +
   geom_segment(data=anno, aes(x=x1,xend=x2,y=y2,yend=y2),inherit.aes=F) +
   geom_segment(data=anno, aes(x=x1,xend=x1,y=y1,yend=y2),inherit.aes=F) +
   geom_segment(data=anno, aes(x=x2,xend=x2,y=y1,yend=y2),inherit.aes=F) +
   geom_text(data=anno, aes(x = xstar,  y = ystar, label = lab), inherit.aes=F) +
+  scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
   scale_x_discrete(labels=c("Between Cat.","Within Cat.")) +
   theme_classic()
 
 
 
+# # # # # Euclidean Distances for Test 2 # # # # #
 lf_dist2 <- melt(psychCoord2, measure.vars = paste0(ex2[1,],"_",ex2[2,]))
 lf_dist2$group <- recode(lf_dist2$variable, 
                          "9_10"="cat1","9_11"="cat1","9_12"="cat1","9_13"="between", 
@@ -252,37 +279,43 @@ lf_dist2$group <- recode(lf_dist2$variable,
                          "14_16"="cat2", "15_16"="cat2")
 lf_dist2$cat_type <- ifelse(lf_dist2$group == "between","between","within")
 
-anno <- data.frame(x1 = c(1), x2 = c(2), y1 = c(8), y2 = c(8.2), 
-                   xstar = c(1.5), ystar = c(8.5), lab = c("ns"))
+anno <- data.frame(x1 = c(1), x2 = c(2), y1 = c(8.8), y2 = c(9), 
+                   xstar = c(1.5), ystar = c(9.3), lab = c("ns"))
 
-t.test(lf_dist2$value[lf_dist2$group=="cat1"],
-       lf_dist2$value[lf_dist1$group=="cat2"])
+t.test(lf_dist2$value[lf_dist2$group=="cat1"], lf_dist2$value[lf_dist2$group=="cat2"])
+shapiro.test(lf_dist2$value[lf_dist2$group=="cat1"])
+wilcox.test(lf_dist2$value[lf_dist2$group=="cat1"], lf_dist2$value[lf_dist2$group=="cat2"])
 p_task2_cat <- ggplot(lf_dist2[lf_dist2$cat_type=="within",], 
                       aes(x=group,y=value)) + 
-  labs(x = "Category", y="Euclidian Distance") +
-  geom_boxplot() + geom_jitter(alpha=0.2, shape=16) + stat_summary() +
+  labs(x = "Category (task 2)", y="Euclidian Distance") +
+  geom_violin(col = "grey80") + geom_boxplot(col = "grey20") + 
+  geom_jitter(alpha=.2, width = .1, shape=16) + stat_summary() +
   geom_segment(data=anno, aes(x=x1,xend=x2,y=y2,yend=y2),inherit.aes=F) +
   geom_segment(data=anno, aes(x=x1,xend=x1,y=y1,yend=y2),inherit.aes=F) +
   geom_segment(data=anno, aes(x=x2,xend=x2,y=y1,yend=y2),inherit.aes=F) +
   geom_text(data=anno, aes(x = xstar,  y = ystar, label = lab), inherit.aes=F) +
-  scale_x_discrete(labels=c("9 to 12","13 to 16")) +
+  scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
+  scale_x_discrete(labels=c("A to D","E to H")) +
   theme_classic()
 
-t.test(lf_dist2$value[lf_dist2$cat_type=="between"],
-       lf_dist2$value[lf_dist2$cat_type!="between"])
+t.test(lf_dist2$value[lf_dist2$cat_type=="between"],lf_dist2$value[lf_dist2$cat_type!="between"])
+shapiro.test(lf_dist2$value[lf_dist2$cat_type=="between"])
+wilcox.test(lf_dist2$value[lf_dist2$cat_type=="between"],lf_dist2$value[lf_dist2$cat_type!="between"])
 p_task2_type <- ggplot(lf_dist2, aes(x=cat_type,y=value)) + 
-  labs(x = "Type", y="Euclidian Distance") +
-  geom_boxplot() + geom_jitter(alpha=0.2, shape=16) + stat_summary() +
+  labs(x = "Type (task 2)", y="Euclidian Distance") +
+  geom_violin(col = "grey80") + geom_boxplot(col = "grey20") + 
+  geom_jitter(alpha=.2, width = .1, shape=16) + stat_summary() +
   geom_segment(data=anno, aes(x=x1,xend=x2,y=y2,yend=y2),inherit.aes=F) +
   geom_segment(data=anno, aes(x=x1,xend=x1,y=y1,yend=y2),inherit.aes=F) +
   geom_segment(data=anno, aes(x=x2,xend=x2,y=y1,yend=y2),inherit.aes=F) +
   geom_text(data=anno, aes(x = xstar,  y = ystar, label = lab), inherit.aes=F) +
+  scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
   scale_x_discrete(labels=c("Between Cat.","Within Cat.")) +
   theme_classic()
 
-library("ggpubr")
-ggarrange(p_task1_cat,p_task2_cat,
-          p_task1_type,p_task2_type, labels=LETTERS[1:4])
+annotate_figure(ggarrange(p_task1_cat,p_task2_cat,
+                          p_task1_type,p_task2_type, labels=LETTERS[1:4]),
+                top = text_grob("Distance in Perceptual Space", color="black", face="bold", size=14))
 
 
 

@@ -27,6 +27,7 @@ table(tolower(wfh$Gender.))
 # visualize using ggplot package
 if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
 if (!require(ggpubr)) {install.packages("ggpubr")}; library(ggpubr)
+if (!require(lmerTest)) {install.packages("lmerTest")}; library(lmerTest)
 
 
 
@@ -133,6 +134,11 @@ figD <- ggplot(lfh[lfh$goodTrials == T,], aes(x=blocks,y=response.corr,col=condi
 
 
 
+# get only relevant data to test first Phase
+temp <- lfe[lfe$phase==1 & lfe$condition!="nonreversed",]
+m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
+summary(m)
+report::report_table(m)
 # get only relevant data to test hypothesis
 temp <- lfe[lfe$phase==2 & lfe$condition!="nonreversed",]
 figC <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2)) +
@@ -148,7 +154,6 @@ figC <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2)) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
   # facet_grid(. ~ first) +
   theme_bw() + theme(legend.position = "none")
-if (!require(lmerTest)) {install.packages("lmerTest")}; library(lmerTest)
 # all blocks
 m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
 summary(m)
@@ -160,10 +165,24 @@ report::report_table(m)
 # what about reaction time
 m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m)
+hist(resid(m),20);shapiro.test(resid(m))
 report::report_table(m)
+m <- lmer(log(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
+summary(m)
+report::report_table(m)
+hist(resid(m),20);shapiro.test(resid(m))
+m <- lmer(sqrt(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
+summary(m)
+report::report_table(m)
+hist(resid(m),20);shapiro.test(resid(m))
 
 
 
+# get only relevant data to test first Phase
+temp <- lfh[lfh$phase==1 & lfh$condition!="nonreversed",]
+m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
+summary(m)
+report::report_table(m)
 # get only relevant data to test hypothesis
 temp <- lfh[lfh$phase==2 & lfh$condition != "nonreversed",]
 figF <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2)) +
@@ -190,7 +209,19 @@ report::report_table(m)
 # what about reaction time
 m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m)
+hist(resid(m),20);shapiro.test(resid(m))
 report::report_table(m)
+m <- lmer(log(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
+summary(m)
+report::report_table(m)
+hist(resid(m),20);shapiro.test(resid(m))
+m <- lmer(sqrt(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
+summary(m)
+report::report_table(m)
+hist(resid(m),20);shapiro.test(resid(m))
+
+
+
 
 
 # participant vector for easy experiment
