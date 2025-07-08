@@ -22,6 +22,9 @@ for (i in 1:length(files)) {
   # read one participant
   oneSubj <- read.csv(paste0("exemplars_similarity/data/",files[i]))
   
+  # sum of seconds in the whole task
+  task_duration_sec <- sum(oneSubj[,c("resp_consent.rt","resp_instructions.rt","ready_task.rt","slider.rt","resp_end.rt")],na.rm = T)
+  
   tempWf <- oneSubj[1,c("PROLIFIC_PID","Age.","Gender.","Nationality.",
                        "Highest.Educational.Degree.")]
   # remove rows with no response
@@ -29,10 +32,10 @@ for (i in 1:length(files)) {
   # combine
   if (i == 1) {
     allSubj <- data.frame(oneSubj,partId=paste0("parID_",i)) 
-    wf <- tempWf
+    wf <- data.frame(tempWf,task_duration_sec)
   } else {
     allSubj <- rbind(allSubj,data.frame(oneSubj,partId=paste0("parID_",i)) )
-    wf <- rbind(wf,tempWf)
+    wf <- rbind(wf,data.frame(tempWf,task_duration_sec))
   }
 }
 
@@ -40,6 +43,7 @@ for (i in 1:length(files)) {
 mean(wf$Age.,na.rm=T); sd(wf$Age.,na.rm=T); range(wf$Age.,na.rm=T)
 table(tolower(wf$Gender.))
 
+mean(wf$task_duration_sec/60); sd(wf$task_duration_sec/60)
 
 # left and right as ordered factors
 allSubj$left <- factor(allSubj$left, levels = exs) 
@@ -165,8 +169,8 @@ for (i in 1:length(partId)) {
   tempTask2 <- as.dist(temp[9:16,11:18])
   
   # Perform Classical MDS
-  mds_result_t1 <- cmdscale(tempTask1, k = 2)  # k = number of dimensions
-  mds_result_t2 <- cmdscale(tempTask2, k = 2)  # k = number of dimensions
+  mds_result_t1 <- cmdscale(tempTask1, k = 4)  # k = number of dimensions
+  mds_result_t2 <- cmdscale(tempTask2, k = 4)  # k = number of dimensions
   
   if (i == 1) {
     psychCoord1 <- data.frame(partId=partId[i],task="task1",
@@ -181,8 +185,10 @@ for (i in 1:length(partId)) {
   }
 }
 # name columns adequately to their exemplars
-colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8))
-colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16))
+# colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8))
+colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8),paste0("z",1:8),paste0("w",1:8))
+# colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16))
+colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16),paste0("z",9:16),paste0("w",9:16))
 
 
 
@@ -234,6 +240,7 @@ anno <- data.frame(x1 = c(1), x2 = c(2), y1 = c(8.8), y2 = c(9),
 
 t.test(lf_dist1$value[lf_dist1$group=="cat1"],lf_dist1$value[lf_dist1$group=="cat2"])
 shapiro.test(lf_dist1$value[lf_dist1$group=="cat1"])
+ks.test(lf_dist1$value[lf_dist1$group=="cat1"],"pnorm")
 wilcox.test(lf_dist1$value[lf_dist1$group=="cat1"],lf_dist1$value[lf_dist1$group=="cat2"])
 p_task1_cat <- ggplot(lf_dist1[lf_dist1$cat_type=="within",], 
        aes(x=group,y=value)) + 
@@ -250,6 +257,9 @@ p_task1_cat <- ggplot(lf_dist1[lf_dist1$cat_type=="within",],
 
 t.test(lf_dist1$value[lf_dist1$cat_type=="between"],lf_dist1$value[lf_dist1$cat_type!="between"])
 shapiro.test(lf_dist1$value[lf_dist1$cat_type=="between"])
+ks.test(lf_dist1$value[lf_dist1$cat_type=="between"],"pnorm",
+        mean=mean(lf_dist1$value[lf_dist1$cat_type=="between"]),
+        sd=sd(lf_dist1$value[lf_dist1$cat_type=="between"]))
 wilcox.test(lf_dist1$value[lf_dist1$cat_type=="between"],lf_dist1$value[lf_dist1$cat_type!="between"])
 p_task1_type <- ggplot(lf_dist1, aes(x=cat_type,y=value)) + 
   labs(x = "Type (task 1)", y="Euclidian Distance") +
@@ -284,6 +294,9 @@ anno <- data.frame(x1 = c(1), x2 = c(2), y1 = c(8.8), y2 = c(9),
 
 t.test(lf_dist2$value[lf_dist2$group=="cat1"], lf_dist2$value[lf_dist2$group=="cat2"])
 shapiro.test(lf_dist2$value[lf_dist2$group=="cat1"])
+ks.test(lf_dist2$value[lf_dist2$group=="cat1"], "pnorm", 
+        mean=mean(lf_dist2$value[lf_dist2$group=="cat1"]),
+        sd=sd(lf_dist2$value[lf_dist2$group=="cat1"]))
 wilcox.test(lf_dist2$value[lf_dist2$group=="cat1"], lf_dist2$value[lf_dist2$group=="cat2"])
 p_task2_cat <- ggplot(lf_dist2[lf_dist2$cat_type=="within",], 
                       aes(x=group,y=value)) + 
@@ -300,6 +313,9 @@ p_task2_cat <- ggplot(lf_dist2[lf_dist2$cat_type=="within",],
 
 t.test(lf_dist2$value[lf_dist2$cat_type=="between"],lf_dist2$value[lf_dist2$cat_type!="between"])
 shapiro.test(lf_dist2$value[lf_dist2$cat_type=="between"])
+ks.test(lf_dist2$value[lf_dist2$cat_type=="between"],"pnorm",
+        mean=mean(lf_dist2$value[lf_dist2$cat_type=="between"]),
+        sd=sd(lf_dist2$value[lf_dist2$cat_type=="between"]))
 wilcox.test(lf_dist2$value[lf_dist2$cat_type=="between"],lf_dist2$value[lf_dist2$cat_type!="between"])
 p_task2_type <- ggplot(lf_dist2, aes(x=cat_type,y=value)) + 
   labs(x = "Type (task 2)", y="Euclidian Distance") +
@@ -315,7 +331,7 @@ p_task2_type <- ggplot(lf_dist2, aes(x=cat_type,y=value)) +
 
 annotate_figure(ggarrange(p_task1_cat,p_task2_cat,
                           p_task1_type,p_task2_type, labels=LETTERS[1:4]),
-                top = text_grob("Distance in Perceptual Space", color="black", face="bold", size=14))
+                top = text_grob("Distance in Perceptual Space (k=4)", color="black", face="bold", size=14))
 
 
 

@@ -5,12 +5,12 @@ rm(list=ls(all=TRUE))
 source("analysis/functions.R")
 
 # pool and clean easy experiment
-lfe <- clean_easy()
+lfe <- cleanEasy()
 wfe <- lfe$wf
 lfe <- lfe$lf
 
 # pool and clean hard experiment
-lfh <- clean_hard()
+lfh <- cleanHard()
 wfh <- lfh$wf
 lfh <- lfh$lf
 
@@ -76,31 +76,42 @@ pHardRT <- ggplot(lfh[lfh$goodTrials==T,], aes(x=blocks,y=response.rt,col=condit
 # visualize average
 
 # correctness
-figA <- ggplot(lfe[lfe$goodTrials == T,], aes(x=blocks,y=response.corr,col=condition2)) +
-  labs(x="blocks", y="p(correct)",col="Task and Condition") +
+figA <- ggplot(lfe[lfe$goodTrials==T,], aes(x=blocks,y=response.corr,shape=condition2,
+                                            col=condition2,linetype=condition2)) +
+  labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
+       linetype="Task and Condition") +
   geom_vline(xintercept = 6.5, col="black", alpha=0.5) +
   geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
   scale_x_continuous(breaks = seq(0,12,by=1)) +
   scale_y_continuous(breaks = seq(0,1,by=0.25)) +
   coord_cartesian(ylim = c(0.25,0.9)) +
-  scale_color_manual(values = c("red","blue","green")) +
-  stat_summary(geom="line",position = position_dodge(0.2),
-               size=1.8) +
+  # scale_color_manual(values = c("red","blue","green")) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  scale_shape_manual(values = c(21,22,17)) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="point",position = position_dodge(0.2),size=2.2,fill="white") +
   # facet_grid(. ~ first) +
-  theme_bw() + theme(legend.position = c(0.2,0.2),
-                     legend.background = element_blank())
-figD <- ggplot(lfh[lfh$goodTrials == T,], aes(x=blocks,y=response.corr,col=condition2)) +
-  labs(x="blocks", y="p(correct)",col="Task and Condition") +
+  theme_bw() + theme(legend.position = c(0.25,0.2), 
+                     legend.background = element_blank(),
+                     legend.title = element_blank())
+figD <- ggplot(lfh[lfh$goodTrials==T,], aes(x=blocks,y=response.corr,shape=condition2,
+                                            col=condition2,linetype=condition2)) +
+  labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
+       linetype="Task and Condition") +
   geom_vline(xintercept = 8.5, col="black") +
   geom_hline(yintercept = 0.5) +
   scale_x_continuous(breaks = seq(0,12,by=1)) +
   scale_y_continuous(breaks = seq(0,1,by=0.25)) +
   coord_cartesian(ylim = c(0.25,0.9)) +
-  scale_color_manual(values = c("red","blue","green")) +
-  stat_summary(geom="line",position = position_dodge(0.2),
-               size=1.8) +
+  # scale_color_manual(values = c("red","blue","green")) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  scale_shape_manual(values = c(21,22,17)) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="point",position = position_dodge(0.2),size=2.2,fill="white") +
   # facet_grid(. ~ first) +
   theme_bw() + theme(legend.position = "none")
 
@@ -136,22 +147,34 @@ figD <- ggplot(lfh[lfh$goodTrials == T,], aes(x=blocks,y=response.corr,col=condi
 
 # get only relevant data to test first Phase
 temp <- lfe[lfe$phase==1 & lfe$condition!="nonreversed",]
+# temp <- lfe[lfe$phase==1 & lfe$condition2!="partial-nonreversed",]
 m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
 summary(m)
 report::report_table(m)
+
+temp <- lfe[lfe$phase==2 & lfe$condition2!="partial-reversed",]
+m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
+summary(m)
+report::report_table(m)
+
 # get only relevant data to test hypothesis
 temp <- lfe[lfe$phase==2 & lfe$condition!="nonreversed",]
-figC <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2)) +
-  labs(x="blocks", y="p(correct)",col="Task and Condition") +
+figC <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2,
+                         shape=condition2,linetype=condition2)) +
+  labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
+       linetype="Task and Condition") +
   geom_vline(xintercept = 6.5, col="black") +
   geom_hline(yintercept = 0.5) +
   scale_x_continuous(breaks = seq(0,12,by=1)) +
   scale_y_continuous(breaks = seq(0,1,by=0.25)) +
   coord_cartesian(ylim = c(0.25,0.85)) +
-  scale_color_manual(values = c("red","blue")) +
-  stat_summary(geom="line",position = position_dodge(0.2),
-               size=1.8) +
+  # scale_color_manual(values = c("red","blue")) +
+  scale_color_manual(values = c("blue","orange")) +
+  scale_linetype_manual(values = c("solid","solid")) +
+  scale_shape_manual(values = c(21,22)) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="point",position = position_dodge(0.2),size=2.2,fill="white") +
   # facet_grid(. ~ first) +
   theme_bw() + theme(legend.position = "none")
 # all blocks
@@ -165,37 +188,54 @@ report::report_table(m)
 # what about reaction time
 m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m)
-hist(resid(m),20);shapiro.test(resid(m))
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); #shapiro.test(resid(m))
 report::report_table(m)
+
 m <- lmer(log(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m)
 report::report_table(m)
-hist(resid(m),20);shapiro.test(resid(m))
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); #shapiro.test(resid(m))
+
 m <- lmer(sqrt(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m)
 report::report_table(m)
-hist(resid(m),20);shapiro.test(resid(m))
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); #shapiro.test(resid(m))
+
+
+
 
 
 
 # get only relevant data to test first Phase
 temp <- lfh[lfh$phase==1 & lfh$condition!="nonreversed",]
+# temp <- lfh[lfh$phase==1 & lfh$condition2!="partial-nonreversed",]
 m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
 summary(m)
 report::report_table(m)
+
+temp <- lfh[lfh$phase==2 & lfh$condition2!="partial-reversed",]
+m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
+summary(m)
+report::report_table(m)
+
 # get only relevant data to test hypothesis
 temp <- lfh[lfh$phase==2 & lfh$condition != "nonreversed",]
-figF <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2)) +
-  labs(x="blocks", y="p(correct)",col="Task and Condition") +
+figF <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2,
+                         shape=condition2,linetype=condition2)) +
+  labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
+       linetype="Task and Condition") +
   geom_vline(xintercept = 8.5, col="black") +
   geom_hline(yintercept = 0.5) +
   scale_x_continuous(breaks = seq(0,12,by=1)) +
   scale_y_continuous(breaks = seq(0,1,by=0.25)) +
   coord_cartesian(ylim = c(0.25,0.85)) +
-  scale_color_manual(values = c("red","blue")) +
-  stat_summary(geom="line",position = position_dodge(0.2),
-               size=1.8) +
+  # scale_color_manual(values = c("red","blue")) +
+  scale_color_manual(values = c("blue","orange")) +
+  scale_linetype_manual(values = c("solid","solid")) +
+  scale_shape_manual(values = c(21,22)) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="point",position = position_dodge(0.2),size=2.2,fill="white") +
   # facet_grid(. ~ first) +
   theme_bw() + theme(legend.position = "none")
 # all blocks
@@ -209,16 +249,18 @@ report::report_table(m)
 # what about reaction time
 m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m)
-hist(resid(m),20);shapiro.test(resid(m))
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); #shapiro.test(resid(m))
 report::report_table(m)
+
 m <- lmer(log(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m)
 report::report_table(m)
-hist(resid(m),20);shapiro.test(resid(m))
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); #shapiro.test(resid(m))
+
 m <- lmer(sqrt(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m)
 report::report_table(m)
-hist(resid(m),20);shapiro.test(resid(m))
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); #shapiro.test(resid(m))
 
 
 
@@ -243,18 +285,26 @@ collapsedE <- as.data.frame(lfe[lfe$goodSubject==T & lfe$goodTrials==T,] %>%
                                        avgRt=mean(response.rt,na.rm=T),
                                        medRt=median(response.rt,na.rm=T)))
 # figure B
-figB <- ggplot(collapsedE, aes(x=blocks,y=medRt,col=condition2)) +
-  labs(x="blocks", y="Mean of Medians RT (sec.)",col="Task and Condition") +
+figB <- ggplot(collapsedE, aes(x=blocks,y=medRt,col=condition2,
+                               shape=condition2,linetype=condition2)) +
+  labs(x="blocks", y="Mean of Medians RT (sec.)",shape="Task and Condition",
+       col="Task and Condition",linetype="Task and Condition") +
   geom_vline(xintercept = 6.5, col="black") +
   scale_x_continuous(breaks = seq(0,12,by=1)) +
   scale_y_continuous(breaks = seq(0,2,by=0.25)) +
   coord_cartesian(ylim = c(0.6,1.25)) +
-  scale_color_manual(values = c("red","blue","green")) +
-  stat_summary(geom="line",position = position_dodge(0.2),
-               size=1.8) +
+  # scale_color_manual(values = c("red","blue","green")) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  scale_shape_manual(values = c(21,22,17)) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="point",position = position_dodge(0.2),size=2.2,fill="white") +
   # facet_grid(. ~ first) +
   theme_bw() + theme(legend.position = "none")
+  # theme(legend.position = c(0.75,0.8),
+  #                    legend.background = element_blank(),
+  #                    legend.title = element_blank())
 
 
 # participant vector for hard experiment 
@@ -269,16 +319,21 @@ collapsedH <- as.data.frame(lfh[lfh$goodSubject==T & lfh$goodTrials==T,] %>%
                                         avgRt=mean(response.rt,na.rm=T),
                                         medRt=median(response.rt,na.rm=T)))
 # figure E
-figE <- ggplot(collapsedH, aes(x=blocks,y=medRt,col=condition2)) +
-  labs(x="blocks", y="Mean of Medians RT (sec.)",col="Task and Condition") +
+figE <- ggplot(collapsedH, aes(x=blocks,y=medRt,col=condition2,
+                               shape=condition2,linetype=condition2)) +
+  labs(x="blocks", y="Mean of Medians RT (sec.)",shape="Task and Condition",
+       col="Task and Condition",linetype="Task and Condition") +
   geom_vline(xintercept = 8.5, col="black") +
   scale_x_continuous(breaks = seq(0,12,by=1)) +
   scale_y_continuous(breaks = seq(0,2,by=0.25)) +
   coord_cartesian(ylim = c(0.6,1.25)) +
-  scale_color_manual(values = c("red","blue","green")) +
-  stat_summary(geom="line",position = position_dodge(0.2),
-               size=1.8) +
+  # scale_color_manual(values = c("red","blue","green")) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  scale_shape_manual(values = c(21,22,17)) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  stat_summary(geom="point",position = position_dodge(0.2),size=2.2,fill="white") +
   # facet_grid(. ~ first) +
   theme_bw() + theme(legend.position = "none")
 
@@ -288,10 +343,10 @@ figE <- ggplot(collapsedH, aes(x=blocks,y=medRt,col=condition2)) +
 
 left <- annotate_figure(ggarrange(figA,figB,figC,nrow=3,
                                   labels = c("A","B","C")),
-                        top = text_grob("Easy", color = "black", face = "bold", size = 14))
+                        top = text_grob("Experiment 1a", color = "black", face = "bold", size = 14))
 right <- annotate_figure(ggarrange(figD,figE,figF,nrow=3,
                                    labels = c("D","E","F")),
-                         top = text_grob("Hard", color = "black", face = "bold", size = 14))
+                         top = text_grob("Experiment 1b", color = "black", face = "bold", size = 14))
 
 figure2 <- ggarrange(left,right,ncol=2,common.legend = T)
 figure2
@@ -300,7 +355,7 @@ figure2
 # combine
 print_fig <- 1
 if (print_fig == 1) {
-  ggsave("analysis/figure2.pdf",
+  ggsave("analysis/figure2.pdf", scale=.9,
          plot = figure2, width = 24, height = 24, units = "cm", dpi = 900, 
          limitsize = T)
 }
