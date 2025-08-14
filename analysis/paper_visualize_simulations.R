@@ -83,6 +83,42 @@ p_act_mod1 <- ggplot(db[,], aes(x=nBlock,y=discScore,
 
 
 
+# read output data
+par <- read.csv("../simulations/exp_partial5_mod1_n16_alpha0.2_beta0.9.csv")
+par$task <- "partial"
+tot <- read.csv("../simulations/exp_total5_mod1_n16_alpha0.2_beta0.9.csv")
+tot$task <- "total"
+db <- combineSimConditions(par,tot) 
+# visualize
+if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
+db$condition <- factor(db$condition, levels = c("reversed","nonreversed"))
+db$condition2 <- paste0(db$task,"-",db$condition)
+db$condition2 <- factor(db$condition2, levels = c("total-reversed","partial-reversed","partial-nonreversed"))
+p <- ggplot(db[,], aes(x=nBlock,y=discScore,
+                       col=condition2,linetype=condition2)) +
+  labs(#title = expression(Model~1*`;`~alpha==0.2*`;`~beta==0.9),
+    title = "Model 1",
+    x="blocks",col="Task and Condition",
+    linetype="Task and Condition",#y=expression(act[target]*`/(`*act[target]+act[other]*`)`)
+    y="correct score") +
+  coord_cartesian(ylim = c(0,1), xlim=c(25,175)) +
+  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
+  geom_vline(xintercept = 125.5, col="black", alpha=0.5) +
+  # scale_x_continuous(breaks = seq(0,1000,by=250)) +
+  scale_x_continuous(breaks = c(25,125,175)) +
+  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
+  scale_color_manual(values = c("blue","orange","orange")) +
+  scale_linetype_manual(values = c("solid","solid","dotted")) +
+  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
+  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
+  annotate("text", x = c(80,160), y=c(.05), label=c("Learning","Reversal")) +
+  theme_classic() + 
+  theme(plot.title = element_text(face = "bold", size = 16))   
+# p
+
+
+
+
 # # # # # now weights # # # # # 
 plotNet <- function (dat, label_manual) {
   # visualize weights (Input-Hidden)

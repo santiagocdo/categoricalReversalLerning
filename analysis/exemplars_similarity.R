@@ -1,5 +1,5 @@
 # Remove all of the elements currently loaded in R
-rm(list=ls(all=TRUE))
+rm(list = ls(all = TRUE))
 
 
 library(ggplot2)
@@ -66,6 +66,14 @@ colnames(allSubj) <- c("partId","PROLIFIC_PID","gender","nationality","education
                        "task","trial","left","right","rating","rt")
 # add +1 to trials
 allSubj$trial <- allSubj$trial + 1
+
+# calculate the highest comparison to use as supplementary materials in paper
+allSubj$comparison <- paste0(allSubj$left,"_vs_", allSubj$right)
+sumAllSubj <- allSubj %>% group_by(partId, comparison) %>% 
+  summarise(mean=mean(comparison))
+
+
+
 
 # write csv in long format
 # write.csv(allSubj, "exemplars_similarity/longFormat.csv",row.names = F)
@@ -169,8 +177,8 @@ for (i in 1:length(partId)) {
   tempTask2 <- as.dist(temp[9:16,11:18])
   
   # Perform Classical MDS
-  mds_result_t1 <- cmdscale(tempTask1, k = 4)  # k = number of dimensions
-  mds_result_t2 <- cmdscale(tempTask2, k = 4)  # k = number of dimensions
+  mds_result_t1 <- cmdscale(tempTask1, k = 3)  # k = number of dimensions
+  mds_result_t2 <- cmdscale(tempTask2, k = 3)  # k = number of dimensions
   
   if (i == 1) {
     psychCoord1 <- data.frame(partId=partId[i],task="task1",
@@ -186,9 +194,11 @@ for (i in 1:length(partId)) {
 }
 # name columns adequately to their exemplars
 # colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8))
-colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8),paste0("z",1:8),paste0("w",1:8))
+colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8),paste0("z",1:8))
+# colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8),paste0("z",1:8),paste0("w",1:8))
 # colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16))
-colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16),paste0("z",9:16),paste0("w",9:16))
+colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16),paste0("z",9:16))
+# colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16),paste0("z",9:16),paste0("w",9:16))
 
 
 
@@ -216,8 +226,8 @@ colnames(dist1) <- paste0(ex1[1,],"_",ex1[2,])
 colnames(dist2) <- paste0(ex2[1,],"_",ex2[2,])
 
 # combine with psychological space
-psychCoord1 <- cbind(psychCoord1,dist1)
-psychCoord2 <- cbind(psychCoord2,dist2)
+psychCoord1 <- cbind(psychCoord1, dist1)
+psychCoord2 <- cbind(psychCoord2, dist2)
 
 
 
@@ -244,7 +254,7 @@ ks.test(lf_dist1$value[lf_dist1$group=="cat1"],"pnorm")
 wilcox.test(lf_dist1$value[lf_dist1$group=="cat1"],lf_dist1$value[lf_dist1$group=="cat2"])
 p_task1_cat <- ggplot(lf_dist1[lf_dist1$cat_type=="within",], 
        aes(x=group,y=value)) + 
-  labs(x = "Category (task 1)", y="Euclidian Distance") +
+  labs(x = "Set 1 (A to H)", y="Euclidian Distance") +
   geom_violin(col = "grey80") + geom_boxplot(col = "grey20") + 
   geom_jitter(alpha=.2, width = .1, shape=16) + stat_summary() +
   geom_segment(data=anno, aes(x=x1,xend=x2,y=y2,yend=y2),inherit.aes=F) +
@@ -262,7 +272,7 @@ ks.test(lf_dist1$value[lf_dist1$cat_type=="between"],"pnorm",
         sd=sd(lf_dist1$value[lf_dist1$cat_type=="between"]))
 wilcox.test(lf_dist1$value[lf_dist1$cat_type=="between"],lf_dist1$value[lf_dist1$cat_type!="between"])
 p_task1_type <- ggplot(lf_dist1, aes(x=cat_type,y=value)) + 
-  labs(x = "Type (task 1)", y="Euclidian Distance") +
+  labs(x = "Set 1 (A to H)", y="Euclidian Distance") +
   geom_violin(col = "grey80") + geom_boxplot(col = "grey20") + 
   geom_jitter(alpha=.2, width = .1, shape=16) + stat_summary() +
   geom_segment(data=anno, aes(x=x1,xend=x2,y=y2,yend=y2),inherit.aes=F) +
@@ -300,7 +310,7 @@ ks.test(lf_dist2$value[lf_dist2$group=="cat1"], "pnorm",
 wilcox.test(lf_dist2$value[lf_dist2$group=="cat1"], lf_dist2$value[lf_dist2$group=="cat2"])
 p_task2_cat <- ggplot(lf_dist2[lf_dist2$cat_type=="within",], 
                       aes(x=group,y=value)) + 
-  labs(x = "Category (task 2)", y="Euclidian Distance") +
+  labs(x = "Set 2 (I to P)", y="Euclidian Distance") +
   geom_violin(col = "grey80") + geom_boxplot(col = "grey20") + 
   geom_jitter(alpha=.2, width = .1, shape=16) + stat_summary() +
   geom_segment(data=anno, aes(x=x1,xend=x2,y=y2,yend=y2),inherit.aes=F) +
@@ -308,7 +318,7 @@ p_task2_cat <- ggplot(lf_dist2[lf_dist2$cat_type=="within",],
   geom_segment(data=anno, aes(x=x2,xend=x2,y=y1,yend=y2),inherit.aes=F) +
   geom_text(data=anno, aes(x = xstar,  y = ystar, label = lab), inherit.aes=F) +
   scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
-  scale_x_discrete(labels=c("A to D","E to H")) +
+  scale_x_discrete(labels=c("I to L", "M to P")) +
   theme_classic()
 
 t.test(lf_dist2$value[lf_dist2$cat_type=="between"],lf_dist2$value[lf_dist2$cat_type!="between"])
@@ -318,7 +328,7 @@ ks.test(lf_dist2$value[lf_dist2$cat_type=="between"],"pnorm",
         sd=sd(lf_dist2$value[lf_dist2$cat_type=="between"]))
 wilcox.test(lf_dist2$value[lf_dist2$cat_type=="between"],lf_dist2$value[lf_dist2$cat_type!="between"])
 p_task2_type <- ggplot(lf_dist2, aes(x=cat_type,y=value)) + 
-  labs(x = "Type (task 2)", y="Euclidian Distance") +
+  labs(x = "Set 2 (I to P)", y="Euclidian Distance") +
   geom_violin(col = "grey80") + geom_boxplot(col = "grey20") + 
   geom_jitter(alpha=.2, width = .1, shape=16) + stat_summary() +
   geom_segment(data=anno, aes(x=x1,xend=x2,y=y2,yend=y2),inherit.aes=F) +
@@ -331,7 +341,7 @@ p_task2_type <- ggplot(lf_dist2, aes(x=cat_type,y=value)) +
 
 annotate_figure(ggarrange(p_task1_cat,p_task2_cat,
                           p_task1_type,p_task2_type, labels=LETTERS[1:4]),
-                top = text_grob("Distance in Perceptual Space (k=4)", color="black", face="bold", size=14))
+                top = text_grob("Distance in Perceptual Space (k=3)", color="black", face="bold", size=14))
 
 
 

@@ -1,0 +1,89 @@
+8.6967 	WARNING 	User requested fullscreen with size [1536  864], but screen is actually [3840, 2160]. Using actual size
+13.6216 	WARNING 	Couldn't measure a consistent frame rate!
+  - Is your graphics card set to sync to vertical blank?
+  - Are you running other processes on your computer?
+
+13.6220 	EXP 	Created window1 = Window(allowGUI=True, allowStencil=False, autoLog=True, backendConf=UNKNOWN, backgroundFit=<method-wrapper '__getattribute__' of attributeSetter object at 0x000002F3300DAC40>, backgroundImage=<method-wrapper '__getattribute__' of attributeSetter object at 0x000002F3300DABE0>, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([0, 0, 0]), colorSpace='rgb', depthBits=8, fullscr=<method-wrapper '__getattribute__' of attributeSetter object at 0x000002F3300DAA30>, gamma=None, gammaErrorPolicy='raise', lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x000002F3305278E0>, multiSample=False, name='window1', numSamples=2, pos=(0, 0), screen=0, size=array([3840, 2160]), stencilBits=0, stereo=False, title='PsychoPy', units='height', useFBO=True, useRetina=False, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+13.6223 	EXP 	window1: mouseVisible = True
+13.6223 	EXP 	window1: backgroundImage = ''
+13.6223 	EXP 	window1: backgroundFit = 'none'
+13.6252 	EXP 	window1: Attempting to measure frame rate of screen (0) ...
+13.6253 	EXP 	window1: recordFrameIntervals = False
+13.7881 	EXP 	window1: recordFrameIntervals = True
+13.8581 	WARNING 	t of last frame was 20.01ms (=1/49)
+13.9091 	WARNING 	t of last frame was 21.25ms (=1/47)
+13.9585 	WARNING 	t of last frame was 20.35ms (=1/49)
+14.0478 	WARNING 	t of last frame was 26.40ms (=1/37)
+14.1167 	WARNING 	Multiple dropped frames have occurred - I'll stop bothering you about them!
+14.3728 	EXP 	Screen (0) actual frame rate measured at 59.67Hz
+14.3728 	EXP 	window1: recordFrameIntervals = True
+14.3732 	EXP 	window1: mouseVisible = False
+17.5724 	EXP 	CRL1e: status = STARTED
+17.5730 	EXP 	window1: mouseVisible = True
+17.7179 	EXP 	Created informed_consent = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.02, italic=False, languageStyle='LTR', name='informed_consent', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+17.7182 	EXP 	window1: mouseVisible = True
+17.7622 	EXP 	Created text_instructions = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.02, italic=False, languageStyle='LTR', name='text_instructions', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+17.7626 	EXP 	window1: mouseVisible = True
+17.7770 	EXP 	Created next_task_ready = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.02, italic=False, languageStyle='LTR', name='next_task_ready', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+17.7774 	EXP 	window1: mouseVisible = True
+17.7851 	EXP 	Created text_fixation = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=-1.0, draggable=False, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.05, italic=False, languageStyle='LTR', name='text_fixation', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='+', units='height', win=Window(...), wrapWidth=1)
+17.7854 	EXP 	window1: mouseVisible = True
+17.8010 	EXP 	Created stimulus = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, image='default.png', interpolate=True, mask=None, maskParams=None, name='stimulus', opacity=1.0, ori=0.0, pos=array([0., 0.]), size=array([0.6, 0.1]), texRes=128.0, units='height', win=Window(...))
+17.8012 	EXP 	window1: mouseVisible = True
+17.8178 	EXP 	Created response_northern_text = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=-1.0, draggable=False, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.05, italic=False, languageStyle='LTR', name='response_northern_text', opacity=1.0, ori=0.0, pos=array([-0.4 , -0.35]), rgb=UNKNOWN, text='Northern Hemisphere (Left)', units='height', win=Window(...), wrapWidth=1)
+17.8180 	EXP 	window1: mouseVisible = True
+17.8259 	EXP 	Created response_southern_text = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=-2.0, draggable=False, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.05, italic=False, languageStyle='LTR', name='response_southern_text', opacity=1.0, ori=0.0, pos=array([ 0.4 , -0.35]), rgb=UNKNOWN, text='Southern Hemisphere (Right)', units='height', win=Window(...), wrapWidth=1)
+17.8261 	EXP 	window1: mouseVisible = True
+17.8273 	EXP 	Created feedback_text = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=-1.0, draggable=False, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.05, italic=False, languageStyle='LTR', name='feedback_text', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+18.2654 	EXP 	Sound correct_tone set volume 1.000
+18.2658 	EXP 	Sound incorrect_tone set volume 1.000
+18.2660 	EXP 	window1: mouseVisible = True
+18.2955 	EXP 	Created text_end = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.025, italic=False, languageStyle='LTR', name='text_end', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+0.0258 	EXP 	informed_consent: autoDraw = True
+1.0532 	DATA 	Keypress: space
+1.0611 	EXP 	informed_consent: autoDraw = False
+1.0611 	EXP 	text_instructions: autoDraw = True
+1.4805 	EXP 	Imported design/CRL1_task.csv as conditions, 2 conditions, 1 params
+1.4808 	EXP 	Created sequence: fullRandom, trialTypes=2, nReps=1, seed=None
+1.4810 	EXP 	New trial (rep=0, index=0): OrderedDict([('tasksRows', ' 2:4')])
+1.4829 	DATA 	Keypress: space
+1.4952 	EXP 	text_instructions: autoDraw = False
+1.4952 	EXP 	next_task_ready: autoDraw = True
+2.0949 	DATA 	Keypress: space
+2.1131 	EXP 	Imported design/CRL1e_phase.csv as conditions, 2 conditions, 2 params
+2.1134 	EXP 	Created sequence: sequential, trialTypes=2, nReps=1, seed=None
+2.1136 	EXP 	New trial (rep=0, index=0): OrderedDict([('trialsRows', ' 16:24'), ('eachBlock', 6)])
+2.1173 	EXP 	Imported design/CRL1e_trials_set1.csv as conditions, 8 conditions, 7 params
+2.1176 	EXP 	Created sequence: random, trialTypes=8, nReps=6, seed=None
+2.1177 	EXP 	New trial (rep=0, index=0): OrderedDict([('task', 'partial'), ('phase', 1), ('Exemplars', 'images/Ex5.jpg'), ('r_correct', 'left'), ('condition', 'training'), ('difficulty', 'easy'), ('set', 1)])
+2.1256 	EXP 	next_task_ready: autoDraw = False
+2.1256 	EXP 	text_fixation: autoDraw = True
+3.5454 	EXP 	text_fixation: autoDraw = False
+3.5454 	EXP 	text_fixation: autoDraw = False
+3.5454 	EXP 	stimulus: image = 'images/Ex5.jpg'
+3.5454 	EXP 	stimulus: autoDraw = True
+3.5454 	EXP 	response_northern_text: autoDraw = True
+3.5454 	EXP 	response_southern_text: autoDraw = True
+6.1734 	DATA 	Mouse: Left button down, pos=(2258,876)
+6.2648 	DATA 	Mouse:  Left button up, pos=(2258,876)
+6.8463 	DATA 	Keypress: m
+7.7134 	EXP 	Sound correct_tone started
+7.7134 	EXP 	Sound incorrect_tone started
+7.7129 	DATA 	Keypress: left
+7.7212 	EXP 	stimulus: autoDraw = False
+7.7212 	EXP 	response_northern_text: autoDraw = False
+7.7212 	EXP 	response_southern_text: autoDraw = False
+7.7212 	EXP 	feedback_text: height = 0.05
+7.7212 	EXP 	feedback_text: height = 0.05
+7.7212 	EXP 	feedback_text: height = 0.05
+7.7212 	EXP 	feedback_text: text = 'Too Slow, Please Respond More Quickly'
+7.7212 	EXP 	feedback_text: autoDraw = True
+7.9225 	EXP 	Sound correct_tone reached end of file
+7.9226 	EXP 	Sound correct_tone reached end of file
+7.9226 	EXP 	Sound incorrect_tone reached end of file
+7.9227 	EXP 	Sound incorrect_tone reached end of file
+8.1954 	DATA 	Keypress: escape
+8.3115 	EXP 	CRL1e: status = STOPPED
+8.3266 	EXP 	feedback_text: autoDraw = False
+8.3267 	EXP 	CRL1e: status = STOPPED
+9.8485 	EXP 	window1: mouseVisible = True

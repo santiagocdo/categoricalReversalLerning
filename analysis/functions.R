@@ -1,6 +1,6 @@
 cleanEasy <- function () {
   # get files cotaning ".csv" from data folder
-  files <- list.files("data/pilot_easy/",pattern =  ".csv")
+  files <- list.files("data/exp1a_easy/",pattern =  ".csv")
   
   # create vector with relevant columns to filter read csvs ("data/")
   # rel_cols <- c("participant","task","phase","Exemplars","r_correct","response.keys","trials.thisRepN","response.corr")
@@ -12,7 +12,7 @@ cleanEasy <- function () {
   # loop files, clean them and bind them into a long format dataframe
   for (i in 1:length(files)) {
     # read ith file
-    temp <- read.csv(paste0("data/pilot_easy/",files[i]))
+    temp <- read.csv(paste0("data/exp1a_easy/",files[i]))
    
     # wide format and demographics
     tempWf <- temp[1,c("participant","Age.","Gender.","Nationality.",
@@ -109,7 +109,7 @@ cleanEasy <- function () {
 
 cleanHard <- function() {
   # get files cotaning ".csv" from data folder
-  files <- list.files("data/pilot_hard/",pattern =  ".csv")
+  files <- list.files("data/exp1b_hard/",pattern =  ".csv")
   
   # create vector with relevant columns to filter read csvs ("data/")
   # rel_cols <- c("participant","task","phase","Exemplars","r_correct","response.keys","trials.thisRepN","response.corr")
@@ -121,7 +121,7 @@ cleanHard <- function() {
   # loop files, clean them and bind them into a long format dataframe
   for (i in 1:length(files)) {
     # read ith file
-    temp <- read.csv(paste0("data/pilot_hard/",files[i]))
+    temp <- read.csv(paste0("data/exp1b_hard/",files[i]))
     
     # wide format and demographics
     tempWf <- temp[1,c("participant","Age.","Gender.","Nationality.",
