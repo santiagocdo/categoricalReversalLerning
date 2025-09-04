@@ -524,7 +524,14 @@ summary(m); report::report_table(m)
 
 
 # # # # # # Phase 2: # # # # # #
-# # # Partial Reversed versus Partial Nonreversed # # #
+# # # Is partial-nonreversed different than 0? # # #
+# temp <- lfh[lfh$phase==2 & lfh$blocksPhase <= 2 & lfh$condition2=="partial-nonreversed",]
+# m <- glmer(response.corr~blocksPhase+(1|participant),family = binomial,temp)
+# summary(m); report::report_table(m)
+# # # Is there difference between nonreversed and total reversed in block 11? # # #
+# temp <- lfh[lfh$phase==2 & lfh$blocksPhase == 3 & lfh$condition2!="partial-reversed",]
+# m <- glmer(response.corr~condition+(1|participant),family = binomial, temp); t.test(response.corr~condition, temp)
+# summary(m); report::report_table(m)
 # first two blocks (Generalization of error)
 temp <- lfh[lfh$phase==2 & lfh$blocksPhase <= 2 & lfh$condition2!="total-reversed",]
 m <- glmer(response.corr~blocksPhase*condition2+(1|participant),family = binomial,temp)
@@ -621,6 +628,13 @@ m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m); report::report_table(m)
 hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
 
+# # # interaction in the first two blocks # # #
+temp <- lfh[lfh$phase==2 & lfh$blocksPhase <= 2 & lfh$condition2!="total-reversed",]
+m <- lmer(response.rt~blocksPhase*condition+(blocksPhase|participant),REML=F,temp)
+summary(m); report::report_table(m)
+temp <- lfh[lfh$phase==2 & lfh$blocksPhase == 2 & lfh$condition2!="total-reversed",]
+m <- lmer(response.rt~condition+(1|participant),REML=F,temp)
+ggplot(temp, aes(x=blocksPhase,y=response.rt,col=condition)) + stat_summary()
 
 m <- lmer(log(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
 summary(m); report::report_table(m)
