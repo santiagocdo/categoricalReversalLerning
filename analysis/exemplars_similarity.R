@@ -177,8 +177,8 @@ for (i in 1:length(partId)) {
   tempTask2 <- as.dist(temp[9:16,11:18])
   
   # Perform Classical MDS
-  mds_result_t1 <- cmdscale(tempTask1, k = 3)  # k = number of dimensions
-  mds_result_t2 <- cmdscale(tempTask2, k = 3)  # k = number of dimensions
+  mds_result_t1 <- cmdscale(tempTask1, k = 2)  # k = number of dimensions
+  mds_result_t2 <- cmdscale(tempTask2, k = 2)  # k = number of dimensions
   
   if (i == 1) {
     psychCoord1 <- data.frame(partId=partId[i],task="task1",
@@ -193,11 +193,11 @@ for (i in 1:length(partId)) {
   }
 }
 # name columns adequately to their exemplars
-# colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8))
-colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8),paste0("z",1:8))
+colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8))
+# colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8),paste0("z",1:8))
 # colnames(psychCoord1)[-1:-2] <- c(paste0("x",1:8),paste0("y",1:8),paste0("z",1:8),paste0("w",1:8))
-# colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16))
-colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16),paste0("z",9:16))
+colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16))
+# colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16),paste0("z",9:16))
 # colnames(psychCoord2)[-1:-2] <- c(paste0("x",9:16),paste0("y",9:16),paste0("z",9:16),paste0("w",9:16))
 
 
@@ -339,11 +339,17 @@ p_task2_type <- ggplot(lf_dist2, aes(x=cat_type,y=value)) +
   scale_x_discrete(labels=c("Between Cat.","Within Cat.")) +
   theme_classic()
 
-annotate_figure(ggarrange(p_task1_cat,p_task2_cat,
-                          p_task1_type,p_task2_type, labels=LETTERS[1:4]),
-                top = text_grob("Distance in Perceptual Space (k=3)", color="black", face="bold", size=14))
+plot <- annotate_figure(ggarrange(p_task1_cat,p_task2_cat,
+                                  p_task1_type,p_task2_type, labels=LETTERS[1:4]),
+                        top = text_grob("Distance in Perceptual Space (k=2)", color="black", face="bold", size=14))
 
-
+# combine
+print_fig <- 1
+if (print_fig == 1) {
+  ggsave("analysis/figure3.pdf", scale=1,
+         plot = plot, width = 15, height = 15, units = "cm", dpi = 900, 
+         limitsize = T)
+}
 
 
 
