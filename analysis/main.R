@@ -1,6 +1,17 @@
 # Remove all of the elements currently loaded in R
 rm(list=ls(all=TRUE))
 
+# libraries to data managing and visualizations
+if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
+if (!require(ggpubr)) {install.packages("ggpubr")}; library(ggpubr)
+if (!require(lmerTest)) {install.packages("lmerTest")}; library(lmerTest)
+if (!require(blme)) {install.packages('blme')}; library(blme)
+if (!require(emmeans)) {install.packages("emmeans")}; library(emmeans)
+if (!require(cowplot)) {install.packages("cowplot")}; library(cowplot)
+if (!require(dplyr)) {install.packages("dplyr")}; library(dplyr)
+if (!require(bayestestR)) {install.packages("bayestestR")}; library(bayestestR)
+
+
 # call my functions
 source("analysis/functions.R")
 
@@ -24,53 +35,6 @@ table(tolower(wfe$Gender.))
 mean(wfh$Age.,na.rm=T); sd(wfh$Age.,na.rm=T); range(wfh$Age.,na.rm=T)
 table(tolower(wfh$Gender.))
 
-# visualize using ggplot package
-if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
-if (!require(ggpubr)) {install.packages("ggpubr")}; library(ggpubr)
-if (!require(lmerTest)) {install.packages("lmerTest")}; library(lmerTest)
-if (!require(cowplot)) {install.packages("cowplot")}; library(cowplot)
-if (!require(dplyr)) {install.packages("dplyr")}; library(dplyr)
-
-# visualize all subjects
-
-# correctness
-# pEasyCorr <- ggplot(lfe, aes(x=blocks,y=response.corr,col=condition2)) +
-#   labs(x="blocks", y="p(correct)",col="Task and Condition") +
-#   geom_vline(xintercept = 6.5, col="black", alpha=0.5) +
-#   geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
-#   scale_x_continuous(breaks = seq(0,12,by=2)) +
-#   stat_summary(geom="line",position = position_dodge(0.2)) +
-#   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-#   facet_wrap(subjectId ~ .) +
-#   theme_bw()
-# pHardCorr <- ggplot(lfh, aes(x=blocks,y=response.corr,col=condition2)) +
-#   labs(x="blocks", y="p(correct)",col="Task and Condition") +
-#   geom_vline(xintercept = 8.5, col="black") +
-#   geom_hline(yintercept = 0.5, col="black") +
-#   scale_x_continuous(breaks = seq(0,12,by=2)) +
-#   stat_summary(geom="line",position = position_dodge(0.2)) +
-#   stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-#   facet_wrap(subjectId ~ .) +
-#   theme_bw()
-
-# reaction time
-# pEasyRT <- ggplot(lfe[lfe$goodTrials==T,], aes(x=blocks,y=response.rt,col=condition2,shape=task)) +
-#   labs(x="blocks", y="RT (sec.)",col="Task and Condition") +
-#   geom_vline(xintercept = 6.5, col="black") +
-#   scale_x_continuous(breaks = seq(0,12,by=2)) +
-#   stat_summary(geom="line",fun = median,position = position_dodge(0.2)) +
-#   # stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-#   facet_wrap(subjectId ~ .) +
-#   theme_bw()
-# pHardRT <- ggplot(lfh[lfh$goodTrials==T,], aes(x=blocks,y=response.rt,col=condition2,shape=task)) +
-#   labs(x="blocks", y="RT (sec.)",col="Task and Condition") +
-#   geom_vline(xintercept = 6.5, col="black") +
-#   scale_x_continuous(breaks = seq(0,12,by=2)) +
-#   stat_summary(geom="line",fun = median,position = position_dodge(0.2)) +
-#   # stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-#   facet_wrap(subjectId ~ .) +
-#   theme_bw()
-
 # remove bad trials 
 lfe <- lfe[lfe$goodTrials==T,]
 lfh <- lfh[lfh$goodTrials==T,]
@@ -79,9 +43,23 @@ lfh <- lfh[lfh$goodTrials==T,]
 lfe <- lfe[lfe$goodSubject==T,]
 lfh <- lfh[lfh$goodSubject==T,]
 
+# transform blocks for stats (so intercept make sense (block 1 = 0)
+lfe$blocksStats <- lfe$blocksPhase - 1
+lfh$blocksStats <- lfh$blocksPhase - 1
+
+# add 1st and 2nd task order
+lfe$task_order <- paste0(lfe$first,lfe$task)
+lfe$task_order <- recode(lfe$task_order,
+                         "first-partialpartial"="1st task","first-partialtotal"="2nd task",
+                         "first-totalpartial"="2nd task","first-totaltotal"="1st task")
+lfh$task_order <- paste0(lfh$first,lfh$task)
+lfh$task_order <- recode(lfh$task_order,
+                         "first-partialpartial"="1st task","first-partialtotal"="2nd task",
+                         "first-totalpartial"="2nd task","first-totaltotal"="1st task")
 
 
-# clean data to visualize means with standard erros using the The Cousineau–Morey method
+# # # # # # The Cousineau–Morey method # # # # # ####
+# clean data to visualize means with standard errors using the The Cousineau–Morey method
 
 # experiment 1a
 grand_mean_corr <- mean(lfe$response.corr)
@@ -169,10 +147,7 @@ lfh_plot <- rbind(lfh_plot,
 
 
 
-
-
-
-# visualize average
+# # # # # # # visualize average # # # # # ####
 pos <- .4#.3
 stroke_size <- .7
 
@@ -189,28 +164,9 @@ max_rt_y <- round(max_rt_y,2)
 
 
 
-# correctness
-# figA <- ggplot(lfe[lfe$goodTrials==T,], aes(x=blocks,y=response.corr,shape=condition2,
-#                                             col=condition2,linetype=condition2)) +
-#   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
-#        linetype="Task and Condition") +
-#   geom_vline(xintercept = 6.5, col="black", alpha=0.5) +
-#   geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
-#   scale_x_continuous(breaks = seq(0,12,by=1)) +
-#   scale_y_continuous(breaks = c(.25,.5,.85)) +
-#   coord_cartesian(ylim = c(0.25,0.9)) +
-#   # scale_color_manual(values = c("red","blue","green")) +
-#   scale_color_manual(values = c("blue","orange","orange")) +
-#   scale_linetype_manual(values = c("solid","solid","dotted")) +
-#   scale_shape_manual(values = c(21,22,17)) +
-#   stat_summary(geom="line",position = position_dodge(pos),size=.7) +
-#   stat_summary(geom="errorbar",position = position_dodge(pos)) +
-#   stat_summary(geom="point",position = position_dodge(pos),size=2.3,fill="white") +
-#   # facet_grid(. ~ first) +
-#   theme_bw() + theme(legend.position = c(0.25,0.2),
-#                      legend.background = element_blank(),
-#                      legend.title = element_blank())
+# # # correctness # # #
 
+# figure A
 figA <- ggplot(lfe_plot, aes(x=blocks,y=m_corr,shape=condition2,
                              col=condition2,linetype=condition2)) +
   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
@@ -228,24 +184,8 @@ figA <- ggplot(lfe_plot, aes(x=blocks,y=m_corr,shape=condition2,
                 aes(ymin=error_min_corr, ymax=error_max_corr), linetype="solid") +
   geom_point(position = position_dodge(pos), fill="white", size=2.3, stroke = stroke_size) + 
   theme_bw() +  theme(legend.position = "none")
-# figD <- ggplot(lfh[lfh$goodTrials==T,], aes(x=blocks,y=response.corr,shape=condition2,
-#                                             col=condition2,linetype=condition2)) +
-#   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
-#        linetype="Task and Condition") +
-#   geom_vline(xintercept = 8.5, col="black") +
-#   geom_hline(yintercept = 0.5) +
-#   scale_x_continuous(breaks = seq(0,12,by=1)) +
-#   scale_y_continuous(breaks = c(.25,.5,.85)) +
-#   coord_cartesian(ylim = c(0.25,0.9)) +
-#   # scale_color_manual(values = c("red","blue","green")) +
-#   scale_color_manual(values = c("blue","orange","orange")) +
-#   scale_linetype_manual(values = c("solid","solid","dotted")) +
-#   scale_shape_manual(values = c(21,22,17)) +
-#   stat_summary(geom="line",position = position_dodge(pos),size=.7) +
-#   stat_summary(geom="errorbar",position = position_dodge(pos)) +
-#   stat_summary(geom="point",position = position_dodge(pos),size=2.3,fill="white") +
-#   # facet_grid(. ~ first) +
-#   theme_bw() + theme(legend.position = "none")
+
+# figure D
 figD <- ggplot(lfh_plot, aes(x=blocks,y=m_corr,shape=condition2,
                              col=condition2,linetype=condition2)) +
   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
@@ -264,30 +204,7 @@ figD <- ggplot(lfh_plot, aes(x=blocks,y=m_corr,shape=condition2,
   geom_point(position = position_dodge(pos), fill="white", size=2.3, stroke = stroke_size) + 
   theme_bw() + theme(legend.position = "none")
 
-
-
-# temp <- lfe[lfe$phase==2 & lfe$blocksPhase <= 2 & lfe$condition2!="partial-reversed",]
-# temp <- lfe[lfe$phase==2 & lfe$blocksPhase <= 2,]
-# insetA <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2, linetype=condition2,
-#                            shape=condition2)) +
-#   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
-#        linetype="Task and Condition") +
-#   geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
-#   scale_x_continuous(breaks = c(7, 8)) +
-#   scale_y_continuous(breaks = c(.25, .5, .8)) +
-#   coord_cartesian(ylim = c(0.25,0.85), xlim = c(6.6,8.4)) +
-#   scale_color_manual(values = c("blue","orange","orange")) +
-#   scale_linetype_manual(values = c("solid","solid","dotted")) +
-#   scale_shape_manual(values = c(21,22,17)) +
-#   stat_summary(geom="line",position = position_dodge(pos),size=.5) +
-#   stat_summary(geom="errorbar",width=.5,position = position_dodge(pos)) +
-#   stat_summary(geom="point",position = position_dodge(pos),size=1.8,fill="white") +
-#   theme_bw() + theme(legend.position = "none",
-#                      plot.margin = unit(c(0, 0, 0, 0), "cm"),
-#                      axis.title = element_blank(),
-#                      axis.text = element_text(size = 6),
-#                      plot.background = element_rect(color = "black", linewidth = .4))
-
+# Figure inset A
 temp <- lfe_plot[lfe_plot$phase==2 & lfe_plot$blocksPhase <= 2,]
 insetA <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2, linetype=condition2,
                            shape=condition2)) +
@@ -310,27 +227,7 @@ insetA <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2, linetype=condition2
                      axis.text = element_text(size = 6),
                      plot.background = element_rect(color = "black", linewidth = .4))
 
-# temp <- lfh[lfh$phase==2 & lfh$blocksPhase <= 2 & lfh$condition2!="partial-reversed",]
-# temp <- lfh[lfh$phase==2 & lfh$blocksPhase <= 2,]
-# insetD <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2, linetype=condition2,
-#                            shape=condition2)) +
-#   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
-#        linetype="Task and Condition") +
-#   geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
-#   scale_x_continuous(breaks = c(9, 10)) +
-#   scale_y_continuous(breaks = c(.35, .5, .7)) +
-#   coord_cartesian(ylim = c(.35, .72), xlim = c(8.6,10.4)) +
-#   scale_color_manual(values = c("blue","orange","orange")) +
-#   scale_linetype_manual(values = c("solid","solid","dotted")) +
-#   scale_shape_manual(values = c(21,22,17)) +
-#   stat_summary(geom="line",position = position_dodge(pos),size=.5) +
-#   stat_summary(geom="errorbar",width=.5,position = position_dodge(pos)) +
-#   stat_summary(geom="point",position = position_dodge(pos),size=1.8,fill="white") +
-#   theme_bw() + theme(legend.position = "none",
-#                      plot.margin = unit(c(0, 0, 0, 0), "cm"),
-#                      axis.title = element_blank(),
-#                      axis.text = element_text(size = 6),
-#                      plot.background = element_rect(color = "black", linewidth = .4))
+# Figure inset D
 temp <- lfh_plot[lfh_plot$phase==2 & lfh_plot$blocksPhase <= 2,]
 insetD <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2, linetype=condition2,
                            shape=condition2)) +
@@ -355,40 +252,111 @@ insetD <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2, linetype=condition2
 
 
 
-# reaction time
-# p4e <- ggplot(lfe[lfe$goodTrials == T,], aes(x=blocks,y=response.rt,col=condition2)) +
-#   labs(x="blocks", y="Median RT (sec.)",col="Task and Condition") +
-#   geom_vline(xintercept = 6.5, col="black") +
-#   scale_x_continuous(breaks = seq(0,12,by=1)) +
-#   scale_y_continuous(breaks = seq(0,2,by=0.25)) +
-#   coord_cartesian(ylim = c(0.45,1.3)) +
-#   scale_color_manual(values = c("red","blue","green")) +
-#   stat_summary(geom="line",fun=median,position = position_dodge(0.2),
-#                size=1.8) +
-#   stat_summary(geom="errorbar",fun.data = iqr,position = position_dodge(0.2)) +
-#   # facet_grid(. ~ first) +
-#   theme_bw() + theme(legend.position = "none")
-# p4h <- ggplot(lfh[lfh$goodTrials == T,], aes(x=blocks,y=response.rt,col=condition2)) +
-#   labs(x="blocks", y="Median RT (sec.)",col="Task and Condition") +
-#   geom_vline(xintercept = 8.5, col="black") +
-#   scale_x_continuous(breaks = seq(0,12,by=1)) +
-#   scale_y_continuous(breaks = seq(0,2,by=0.25)) +
-#   coord_cartesian(ylim = c(0.45,1.3)) +
-#   scale_color_manual(values = c("red","blue","green")) +
-#   stat_summary(geom="line",fun=median,position = position_dodge(0.2),
-#                size=1.8) +
-#   stat_summary(geom="errorbar",fun.data = iqr,position = position_dodge(0.2)) +
-#   # facet_grid(. ~ first) +
-#   theme_bw() + theme(legend.position = "none")
+# # reviewer 2's response with respect propositional versus associative (meta-learning in phase2)
+# ggarrange(
+#   ggplot(lfe[lfe$phase==2,], aes(x=blocksStats, y=response.corr, col=condition2, linetype=condition2, shape=condition2)) + 
+#     labs(title = "Experiment 1",y="p(correct)",x="Blocks-1 in Reversal Phase",col="Task and Condition",
+#          shape="Task and Condition",linetype="Task and Condition") +
+#     stat_summary(geom="line",position = position_dodge(.5)) + stat_summary(fill="white",size=.6, position = position_dodge(.5)) + 
+#     scale_color_manual(values = c("blue","orange","orange")) +
+#     scale_linetype_manual(values = c("solid","solid","dotted")) +
+#     scale_shape_manual(values = c(21,22,17)) + facet_grid(.~task_order) + theme_bw() + theme(legend.position = c(.82,.24)),
+#   ggplot(lfh[lfh$phase==2,], aes(x=blocksStats, y=response.corr, col=condition2, linetype=condition2, shape=condition2)) + 
+#     labs(title = "Experiment 2",y="p(correct)",x="Blocks-1 in Reversal Phase",col="Task and Condition",
+#          shape="Task and Condition",linetype="Task and Condition") +
+#     stat_summary(geom="line",position = position_dodge(.5)) + stat_summary(fill="white",size=.6, position = position_dodge(.5)) + 
+#     scale_color_manual(values = c("blue","orange","orange")) +
+#     scale_linetype_manual(values = c("solid","solid","dotted")) +
+#     scale_shape_manual(values = c(21,22,17)) + facet_grid(.~task_order) + theme_bw() + theme(legend.position = c(.82,.24)), 
+#   nrow=2, common.legend = T
+# )
+# more precisely (this was included in the reviewers' response and supplementary information)
+ggplot(lfe[lfe$phase==2 & lfe$condition!="nonreversed" & lfe$blocksStats==0,], 
+       aes(x=task_order, y=response.corr, col=condition2)) + stat_summary(position = position_dodge(.5))
+summary(glmer(response.corr~task_order*task+(1|participant), family = binomial, 
+              lfe[lfe$phase==2 & lfe$condition!="nonreversed" & lfe$blocksStats==0,]))
+summary(glmer(response.corr~task_order+task+(1|participant), family = binomial, 
+              lfe[lfe$phase==2 & lfe$condition!="nonreversed" & lfe$blocksStats==0,]))
+ggplot(lfh[lfh$phase==2 & lfh$condition!="nonreversed" & lfh$blocksStats==0,], 
+       aes(x=task_order, y=response.corr, col=condition2)) + stat_summary(position = position_dodge(.5))
+summary(glmer(response.corr~task_order*task+(1|participant), family = binomial, 
+              lfh[lfh$phase==2 & lfh$condition!="nonreversed" & lfh$blocksStats==0,]))
+summary(glmer(response.corr~task_order+task+(1|participant), family = binomial, 
+              lfh[lfh$phase==2 & lfh$condition!="nonreversed" & lfh$blocksStats==0,]))
 
 
 
-# # # # # # Phase 1: # # # # # #
+# # # # # # EXPERIMENT 1 # # # # # ####
 # # # Total Reversed versus Partial Reversed # # #
-temp <- lfe[lfe$phase==1 & lfe$condition!="nonreversed",]
-# temp <- lfe[lfe$phase==1 & lfe$condition2!="partial-nonreversed",]
-m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
+
+# all blocks
+temp <- lfe[lfe$phase==2 & lfe$condition!="nonreversed",]
+
+# model adjusted by task_order 
+summary(glmer(response.corr~blocksStats*task+task_order+(blocksStats|participant), family = binomial, temp))
+# analysis per task order
+ggplot(temp, aes(x=blocksStats, y=response.corr, col=condition2)) + facet_grid(.~task_order) + stat_summary(position = position_dodge(.5))
+summary(glmer(response.corr~blocksStats*task+(blocksStats|participant), family = binomial, temp[temp$task_order=="1st task",]))
+summary(glmer(response.corr~blocksStats*task+(blocksStats|participant), family = binomial, temp[temp$task_order=="2nd task",]))
+# colSums(table(temp$participant,temp$first)!=0)
+
+# Reviewer 2 remove first trial sensitivity analysis
+ggplot(temp[temp$ex_counter!=min(temp$ex_counter),],aes(x=ex_counter,y=response.corr,col=condition2)) + stat_summary(position = position_dodge(.5))
+summary(glmer(response.corr~blocksStats*task+(blocksStats|participant), family = binomial, temp[temp$ex_counter!=min(temp$ex_counter),]))
+# Reviewer 2 analysis of first (pre-feedback) and second (post-feedback) responses 
+ggplot(temp[temp$ex_counter<=min(temp$ex_counter)+1,],aes(x=ex_counter,y=response.corr,col=condition2)) + stat_summary(position = position_dodge(.5))
+summary(glmer(response.corr~as.factor(ex_counter)*task+(1|participant), family = binomial, temp[temp$ex_counter<=min(temp$ex_counter)+1,]))
+
+# main analysis
+m0 <- glmer(response.corr~blocksStats*task+(blocksStats|participant), family = binomial, temp)
+# if singular fit, then try bayesian. Use blme instead of lme4 if glmer is singular=TRUE
+# m <- bglmer(response.corr~blocksStats*task+(blocksStats|participant), control = glmerControl(optimizer = "bobyqa"), family = binomial,temp)
+summary(m0); report::report_table(m0)
+# no significant interaction, then (Gelman & Hill, 2006)
+m <- glmer(response.corr~blocksStats+task+(blocksStats|participant), family = binomial, temp)
+anova(m0, m)
 summary(m); report::report_table(m)
+summary(emmeans(m, pairwise ~ task | blocksStats,type = "response"))
+
+# 1. Create a data frame for predictions. We use re.form = NA to get population-level effects (ignoring random intercepts)
+temp$pred <- predict(m, newdata = temp, type = "response", re.form = NA)
+# 2. Aggregate predictions by blocks (to match the geom_line structure). If your plot separates by condition, aggregate by both.
+model_preds <- aggregate(pred ~ blocks + condition2, data = temp, FUN = mean)
+
+
+
+# visualization
+temp <- lfe_plot[lfe_plot$phase==2 & lfe_plot$condition!="nonreversed",]
+figC <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2,
+                         shape=condition2,linetype=condition2)) +
+  labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
+       linetype="Task and Condition") +
+  geom_vline(xintercept = 6.5, col="black") +
+  geom_hline(yintercept = 0.5) +
+  scale_x_continuous(breaks = seq(0,12,by=1)) +
+  scale_y_continuous(breaks = c(min_corr_y,.5,max_corr_y)) +
+  coord_cartesian(ylim = c(min_corr_y,max_corr_y)) +
+  scale_color_manual(values = c("blue","orange")) +
+  scale_linetype_manual(values = c("solid","solid")) +
+  scale_shape_manual(values = c(21,22)) +
+  # geom_line(position = position_dodge(pos)) +
+  geom_line(data = model_preds, aes(x = blocks, y = pred, group = condition2),
+            position = position_dodge(pos)) +
+  geom_errorbar(position = position_dodge(pos), size=.4, width=.3, linewidth=.3, 
+                aes(ymin=error_min_corr, ymax=error_max_corr), linetype="solid") +
+  geom_point(position = position_dodge(pos), fill="white", size=2.3, stroke = stroke_size) + 
+  theme_bw() + theme(legend.position = "none")
+figC <- ggdraw(figC) + draw_plot(insetA,
+                                 x = 0.82,    # x-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
+                                 y = 0.175,    # y-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
+                                 width = 0.15, # Width of the inset (0 to 1, relative to main plot)
+                                 height = 0.275 # Height of the inset (0 to 1, relative to main plot)
+)
+temp <- lfe[lfe$phase==2 & lfe$condition!="nonreversed",]
+# first block
+m <- glmer(response.corr~task+(1|participant),family = binomial,temp[temp$blocksPhase==1,])
+summary(m); report::report_table(m)
+
 
 
 # # # # # # Phase 1 and 2: # # # # # #
@@ -400,7 +368,7 @@ summary(m); report::report_table(m)
 # # # # # # Phase 2: # # # # # #
 # # # Partial Reversed versus Partial Nonreversed # # #
 # first two blocks (Generalization of error)
-temp <- lfe[lfe$phase==2 & lfe$blocksPhase <= 2 & lfe$condition2!="total-reversed",]
+temp <- lfe[lfe$phase==2 & lfe$blocks <= 8 & lfe$condition2!="total-reversed",]
 m <- glmer(response.corr~blocksPhase*condition2+(1|participant),family = binomial,temp)
 summary(m); report::report_table(m)
 
@@ -430,38 +398,99 @@ summary(m);report::report_table(m)
 
 
 
+# # # # # # Phase 2: Reaction Time # # # # # #
+# what about reaction time
+temp <- lfe[lfe$phase==2 & lfe$condition!="nonreversed",]
+m <- lmer(response.rt~blocksStats*task+(blocksStats|participant),REML=F,temp)
+summary(m); report::report_table(m)
+# no significant interaction, then (Gelman & Hill, 2006)
+m <- lmer(response.rt~blocksStats+task+(blocksStats|participant),REML=F,temp)
+summary(m); report::report_table(m)
+m0 <- lmer(response.rt~blocksStats+(blocksStats|participant),REML=F,temp)
+anova(m,m0); bayesfactor_models(m0, denominator = m)
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
+qqnorm(resid(m)); qqline(resid(m), col = "red")
+
+m <- lmer(log(response.rt)~blocksStats*task+(blocksStats|participant),REML=F,temp)
+summary(m); report::report_table(m)
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
+qqnorm(resid(m)); qqline(resid(m), col = "red")
+
+m <- lmer(sqrt(response.rt)~blocksStats*task+(blocksStats|participant),REML=F,temp)
+summary(m); report::report_table(m)
+hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
+qqnorm(resid(m)); qqline(resid(m), col = "red")
+
+m <- glmer(response.rt~blocksStats*task+(blocksStats|participant),famil=Gamma(link = "log"),temp)
+summary(m); report::report_table(m)
+
+
+
+# # # # # # Phase 1: Accuracy # # # # # #
 # # # Total Reversed versus Partial Reversed # # #
-# temp <- lfe[lfe$phase==2 & lfe$condition!="nonreversed",]
-# figC <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2,
-#                          shape=condition2,linetype=condition2)) +
-#   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
-#        linetype="Task and Condition") +
-#   geom_vline(xintercept = 6.5, col="black") +
-#   geom_hline(yintercept = 0.5) +
-#   scale_x_continuous(breaks = seq(0,12,by=1)) +
-#   scale_y_continuous(breaks = c(.25,.5,.85)) +
-#   coord_cartesian(ylim = c(0.25,0.85)) +
-#   # scale_color_manual(values = c("red","blue")) +
-#   scale_color_manual(values = c("blue","orange")) +
-#   scale_linetype_manual(values = c("solid","solid")) +
-#   scale_shape_manual(values = c(21,22)) +
-#   stat_summary(geom="line",position = position_dodge(pos),size=.7) +
-#   stat_summary(geom="errorbar",position = position_dodge(pos), width=.3) +
-#   stat_summary(geom="point",position = position_dodge(pos),size=2.3,fill="white") +
-#   # facet_grid(. ~ first) +
-#   theme_bw() + theme(legend.position = "none")
-# figC <- ggdraw(figC) + draw_plot(insetA,
-#                                  x = 0.77,    # x-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
-#                                  y = 0.17,    # y-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
-#                                  width = 0.2, # Width of the inset (0 to 1, relative to main plot)
-#                                  height = 0.3 # Height of the inset (0 to 1, relative to main plot)
-# )
-temp <- lfe_plot[lfe_plot$phase==2 & lfe_plot$condition!="nonreversed",]
-figC <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2,
+temp <- lfe[lfe$phase==1 & lfe$condition!="nonreversed",]
+# temp <- lfe[lfe$phase==1 & lfe$condition2!="partial-nonreversed",]
+m <- glmer(response.corr~blocksStats*task+(blocksPhase|participant),family = binomial,temp)
+summary(m); report::report_table(m)
+# no significant interaction, then (Gelman & Hill, 2006)
+m <- glmer(response.corr~blocksStats+task+(blocksPhase|participant),family = binomial,temp)
+summary(m); report::report_table(m)
+m0 <- glmer(response.corr~blocksStats+(blocksStats|participant),family = binomial,temp)
+anova(m,m0); bayesfactor_models(m0, denominator = m)
+
+
+
+# reviewer 2, previous to the last comment
+# temp0 <- as.data.frame(lfh[lfh$phase==2 & lfh$blocksStats == 0,] %>%
+#   group_by(participant, task, r_correct) %>%
+#   mutate(cat_count = row_number()) %>%
+#   ungroup())
+# ggplot(temp0, aes(x=cat_count,y=response.corr,col=condition2)) + stat_summary()
+
+
+
+# # # # # # EXPERIMENT 2 # # # # # ####
+# # # Total Reversed versus Partial Reversed # # #
+
+# all blocks
+temp <- lfh[lfh$phase==2 & lfh$condition != "nonreversed",]
+
+# model adjusted by task_order 
+summary(glmer(response.corr~blocksStats*task+task_order+(blocksStats|participant), family = binomial, temp))
+# analysis per task order
+ggplot(temp, aes(x=blocksStats, y=response.corr, col=condition2)) + facet_grid(.~task_order) + stat_summary(position = position_dodge(.5))
+summary(glmer(response.corr~blocksStats*task+(blocksStats|participant), family = binomial, temp[temp$task_order=="1st task",]))
+summary(glmer(response.corr~blocksStats*task+(blocksStats|participant), family = binomial, temp[temp$task_order=="2nd task",]))
+# colSums(table(temp$participant,temp$first)!=0)
+
+# Reviewer 2 remove first trial sensitivity analysis
+ggplot(temp[temp$ex_counter!=min(temp$ex_counter),],aes(x=ex_counter,y=response.corr,col=condition2)) + stat_summary(position = position_dodge(.5))
+summary(glmer(response.corr~blocksStats*task+(blocksStats|participant), family = binomial, temp[temp$ex_counter!=min(temp$ex_counter),]))
+# Reviewer 2 analysis of first (pre-feedback) and second (post-feedback) responses 
+ggplot(temp[temp$ex_counter<=min(temp$ex_counter)+1,],aes(x=ex_counter,y=response.corr,col=condition2)) + stat_summary(position = position_dodge(.5))
+summary(glmer(response.corr~as.factor(ex_counter)*task+(1|participant), family = binomial, temp[temp$ex_counter<=min(temp$ex_counter)+1,]))
+
+# main analysis
+m <- glmer(response.corr~blocksStats*task+(blocksStats|participant), family = binomial, temp)
+# if singular fit, then try bayesian. Use blme instead of lme4 if glmer is singular=TRUE
+# m <- bglmer(response.corr~blocksStats*task+(blocksStats|participant), control = glmerControl(optimizer = "bobyqa"), family = binomial,temp)
+summary(m); report::report_table(m)
+emmeans(m, pairwise ~ task | blocksStats,type = "response")
+
+# 1. Create a data frame for predictions. We use re.form = NA to get population-level effects (ignoring random intercepts)
+temp$pred <- predict(m, newdata = temp, type = "response", re.form = NA)
+# 2. Aggregate predictions by blocks (to match the geom_line structure). If your plot separates by condition, aggregate by both.
+model_preds <- aggregate(pred ~ blocks + condition2, data = temp, FUN = mean)
+
+
+
+# visualization
+temp <- lfh_plot[lfh_plot$phase==2 & lfh_plot$condition!="nonreversed",]
+figF <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2,
                          shape=condition2,linetype=condition2)) +
   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
        linetype="Task and Condition") +
-  geom_vline(xintercept = 6.5, col="black") +
+  geom_vline(xintercept = 8.5, col="black") +
   geom_hline(yintercept = 0.5) +
   scale_x_continuous(breaks = seq(0,12,by=1)) +
   scale_y_continuous(breaks = c(min_corr_y,.5,max_corr_y)) +
@@ -469,52 +498,24 @@ figC <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2,
   scale_color_manual(values = c("blue","orange")) +
   scale_linetype_manual(values = c("solid","solid")) +
   scale_shape_manual(values = c(21,22)) +
-  geom_line(position = position_dodge(pos)) +
+  # geom_line(position = position_dodge(pos)) +
+  geom_line(data = model_preds, aes(x = blocks, y = pred, group = condition2),
+            position = position_dodge(pos)) +
   geom_errorbar(position = position_dodge(pos), size=.4, width=.3, linewidth=.3, 
                 aes(ymin=error_min_corr, ymax=error_max_corr), linetype="solid") +
   geom_point(position = position_dodge(pos), fill="white", size=2.3, stroke = stroke_size) + 
   theme_bw() + theme(legend.position = "none")
-figC <- ggdraw(figC) + draw_plot(insetA,
+figF <- ggdraw(figF) + draw_plot(insetD,
                                  x = 0.82,    # x-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
                                  y = 0.175,    # y-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
                                  width = 0.15, # Width of the inset (0 to 1, relative to main plot)
                                  height = 0.275 # Height of the inset (0 to 1, relative to main plot)
 )
-
-
-
-# all blocks
-temp <- lfe[lfe$phase==2 & lfe$condition!="nonreversed",]
-m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
-summary(m); report::report_table(m)
+temp <- lfh[lfh$phase==2 & lfh$condition != "nonreversed",]
 # first block
 m <- glmer(response.corr~task+(1|participant),family = binomial,temp[temp$blocksPhase==1,])
 summary(m); report::report_table(m)
-# what about reaction time
-m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
-summary(m); report::report_table(m)
-hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
 
-
-m <- lmer(log(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
-summary(m); report::report_table(m)
-hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
-
-m <- lmer(sqrt(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
-summary(m); report::report_table(m)
-hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
-
-
-
-
-
-
-# # # # # # Phase 1: # # # # # #
-# # # Total Reversed versus Partial Reversed # # #
-temp <- lfh[lfh$phase==1 & lfh$condition!="nonreversed",]
-# temp <- lfh[lfh$phase==1 & lfh$condition2!="partial-nonreversed",]
-m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
-summary(m); report::report_table(m)
 
 
 # # # # # # Phase 1 and 2: # # # # # #
@@ -563,91 +564,59 @@ summary(m);report::report_table(m)
 
 
 
-# # # Total Reversed versus Partial Reversed # # #
-# temp <- lfh[lfh$phase==2 & lfh$condition != "nonreversed",]
-# figF <- ggplot(temp, aes(x=blocks,y=response.corr,col=condition2,
-#                          shape=condition2,linetype=condition2)) +
-#   labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
-#        linetype="Task and Condition") +
-#   geom_vline(xintercept = 8.5, col="black") +
-#   geom_hline(yintercept = 0.5) +
-#   scale_x_continuous(breaks = seq(0,12,by=1)) +
-#   scale_y_continuous(breaks = c(.25,.5,.85)) +
-#   coord_cartesian(ylim = c(0.25,0.85)) +
-#   # scale_color_manual(values = c("red","blue")) +
-#   scale_color_manual(values = c("blue","orange")) +
-#   scale_linetype_manual(values = c("solid","solid")) +
-#   scale_shape_manual(values = c(21,22)) +
-#   stat_summary(geom="line",position = position_dodge(pos),size=.7) +
-#   stat_summary(geom="errorbar",position = position_dodge(pos), width=.3) +
-#   stat_summary(geom="point",position = position_dodge(pos),size=2.3,fill="white") +
-#   # facet_grid(. ~ first) +
-#   theme_bw() + theme(legend.position = "none")
-# figF <- ggdraw(figF) + draw_plot(insetD,
-#                                  x = .77,    # x-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
-#                                  y = .17,    # y-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
-#                                  width = 0.2, # Width of the inset (0 to 1, relative to main plot)
-#                                  height = 0.3 # Height of the inset (0 to 1, relative to main plot)
-# )
-temp <- lfh_plot[lfh_plot$phase==2 & lfh_plot$condition!="nonreversed",]
-figF <- ggplot(temp, aes(x=blocks,y=m_corr,col=condition2,
-                         shape=condition2,linetype=condition2)) +
-  labs(x="blocks", y="p(correct)",col="Task and Condition",shape="Task and Condition",
-       linetype="Task and Condition") +
-  geom_vline(xintercept = 8.5, col="black") +
-  geom_hline(yintercept = 0.5) +
-  scale_x_continuous(breaks = seq(0,12,by=1)) +
-  scale_y_continuous(breaks = c(min_corr_y,.5,max_corr_y)) +
-  coord_cartesian(ylim = c(min_corr_y,max_corr_y)) +
-  scale_color_manual(values = c("blue","orange")) +
-  scale_linetype_manual(values = c("solid","solid")) +
-  scale_shape_manual(values = c(21,22)) +
-  geom_line(position = position_dodge(pos)) +
-  geom_errorbar(position = position_dodge(pos), size=.4, width=.3, linewidth=.3, 
-                aes(ymin=error_min_corr, ymax=error_max_corr), linetype="solid") +
-  geom_point(position = position_dodge(pos), fill="white", size=2.3, stroke = stroke_size) + 
-  theme_bw() + theme(legend.position = "none")
-figF <- ggdraw(figF) + draw_plot(insetD,
-                                 x = 0.82,    # x-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
-                                 y = 0.175,    # y-coordinate of the bottom-left corner of the inset (0 to 1, relative to main plot)
-                                 width = 0.15, # Width of the inset (0 to 1, relative to main plot)
-                                 height = 0.275 # Height of the inset (0 to 1, relative to main plot)
-)
-
-
-
-# all blocks
-temp <- lfh[lfh$phase==2 & lfh$condition != "nonreversed",]
-m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
-summary(m) ;report::report_table(m)
-# first block
-m <- glmer(response.corr~task+(1|participant),family = binomial,temp[temp$blocksPhase==1,])
-summary(m); report::report_table(m)
+# # # # # # Phase 2: Reaction Time # # # # # #
 # what about reaction time
-m <- lmer(response.rt~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
+temp <- lfh[lfh$phase==2 & lfh$condition != "nonreversed",]
+m <- lmer(response.rt~blocksStats*task+(blocksStats|participant),REML=F,temp)
+summary(m); report::report_table(m)
+# no significant interaction, then (Gelman & Hill, 2006)
+m <- lmer(response.rt~blocksStats+task+(blocksStats|participant),REML=F,temp)
 summary(m); report::report_table(m)
 hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
+qqnorm(resid(m)); qqline(resid(m), col = "red")
 
 # # # interaction in the first two blocks # # #
-temp <- lfh[lfh$phase==2 & lfh$blocksPhase <= 2 & lfh$condition2!="total-reversed",]
-m <- lmer(response.rt~blocksPhase*condition+(blocksPhase|participant),REML=F,temp)
+# temp <- lfh[lfh$phase==2 & lfh$blocksPhase <= 2 & lfh$condition2!="total-reversed",]
+# m <- lmer(response.rt~blocksPhase*condition+(blocksPhase|participant),REML=F,temp)
+# summary(m); report::report_table(m)
+# temp <- lfh[lfh$phase==2 & lfh$blocksPhase == 2 & lfh$condition2!="total-reversed",]
+# m <- lmer(response.rt~condition+(1|participant),REML=F,temp)
+# ggplot(temp, aes(x=blocksPhase,y=response.rt,col=condition)) + stat_summary()
+
+m1 <- lmer(log(response.rt)~blocksStats*task+(blocksStats|participant),REML=F,temp)
+summary(m1); report::report_table(m1)
+hist(resid(m1),20); ks.test(resid(m1), "pnorm", mean(resid(m1)), sd(resid(m1))); shapiro.test(resid(m1))
+qqnorm(resid(m1)); qqline(resid(m1), col = "red")
+
+m2 <- lmer(sqrt(response.rt)~blocksStats*task+(blocksStats|participant),REML=F,temp)
+summary(m2); report::report_table(m2)
+hist(resid(m2),20); ks.test(resid(m2), "pnorm", mean(resid(m2)), sd(resid(m2))); shapiro.test(resid(m2))
+qqnorm(resid(m2)); qqline(resid(m2), col = "red")
+
+m3<- glmer(response.rt~blocksStats*task+(blocksStats|participant),famil=Gamma(link = "log"),temp)
+summary(m3); report::report_table(m3)
+BIC(m1,m2,m3)
+
+
+
+# # # # # # Phase 1: Accuracy # # # # # #
+# # # Total Reversed versus Partial Reversed # # #
+temp <- lfh[lfh$phase==1 & lfh$condition!="nonreversed",]
+# temp <- lfh[lfh$phase==1 & lfh$condition2!="partial-nonreversed",]
+m <- glmer(response.corr~blocksPhase*task+(blocksPhase|participant),family = binomial,temp)
 summary(m); report::report_table(m)
-temp <- lfh[lfh$phase==2 & lfh$blocksPhase == 2 & lfh$condition2!="total-reversed",]
-m <- lmer(response.rt~condition+(1|participant),REML=F,temp)
-ggplot(temp, aes(x=blocksPhase,y=response.rt,col=condition)) + stat_summary()
-
-m <- lmer(log(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
+# no significant interaction, then (Gelman & Hill, 2006)
+m <- glmer(response.corr~blocksPhase+task+(blocksPhase|participant),family = binomial,temp)
 summary(m); report::report_table(m)
-hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
-
-m <- lmer(sqrt(response.rt)~blocksPhase*task+(blocksPhase|participant),REML=F,temp)
-summary(m); report::report_table(m)
-hist(resid(m),20); ks.test(resid(m), "pnorm", mean(resid(m)), sd(resid(m))); shapiro.test(resid(m))
+m0 <- glmer(response.corr~blocksStats+(blocksStats|participant),family = binomial,temp)
+anova(m,m0); bayesfactor_models(m0, denominator = m)
 
 
 
 
 
+
+##### 
 # participant vector for easy experiment
 participantsE <- unique(lfe$participant)
 
@@ -765,10 +734,10 @@ figE <- ggplot(lfh_plot, aes(x=blocks,y=m_rt,col=condition2,
 
 left <- annotate_figure(ggarrange(figA,figB,figC,nrow=3,
                                   labels = c("A","B","C")),
-                        top = text_grob("Experiment 1a", color = "black", face = "bold", size = 14))
+                        top = text_grob("Experiment 1", color = "black", face = "bold", size = 14))
 right <- annotate_figure(ggarrange(figD,figE,figF,nrow=3,
                                    labels = c("D","E","F")),
-                         top = text_grob("Experiment 1b", color = "black", face = "bold", size = 14))
+                         top = text_grob("Experiment 2", color = "black", face = "bold", size = 14))
 
 figure2 <- ggarrange(left,right,ncol=2,common.legend = T)
 figure2
@@ -777,7 +746,7 @@ figure2
 # combine
 print_fig <- 1
 if (print_fig == 1) {
-    ggsave("analysis/figure2_v4.pdf", scale=.9,
+    ggsave("analysis/figure2_v6.pdf", scale=.9,
          plot = figure2, width = 24, height = 24, units = "cm", dpi = 900, 
          limitsize = T)
 }
@@ -786,205 +755,48 @@ if (print_fig == 1) {
 
 
 
-# Gregynog 2024 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Sensibility Analysis with ANOVAs# # # # # # # # # # # # # # # # # # # # # ####
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-figA <- ggplot(lfe[lfe$goodTrials == T,], 
-               aes(x=blocks,y=response.corr,
-                   col=condition2,shape=condition2,linetype=condition2)) +
-  labs(title="Easy version", x="blocks", y="p(correct)",
-       col="Task and Condition", shape="Task and Condition",
-       linetype="Task and Condition") +
-  coord_cartesian(ylim = c(0,1)) +
-  geom_vline(xintercept = 6.5, col="black", alpha=0.5) +
-  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
-  scale_x_continuous(breaks = seq(0,12,by=1)) +
-  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
-  scale_color_manual(values = c("blue","orange","orange")) +
-  scale_shape_manual(values = c(15,19,21)) +
-  scale_linetype_manual(values = c("solid","solid","dotted")) +
-  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
-  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-  stat_summary(geom="point",position = position_dodge(0.2),size=3,fill="white") +
-  # facet_grid(. ~ first) +
-  theme_bw()
-# figA
-
-figB <- ggplot(lfh[lfh$goodTrials == T,], 
-               aes(x=blocks,y=response.corr,
-                   col=condition2,shape=condition2,linetype=condition2)) +
-  labs(title="Hard version", x="blocks", y="p(correct)",
-       col="Task and Condition", shape="Task and Condition",
-       linetype="Task and Condition") +
-  coord_cartesian(ylim = c(0,1)) +
-  geom_vline(xintercept = 8.5, col="black", alpha=0.5) +
-  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
-  scale_x_continuous(breaks = seq(0,12,by=1)) +
-  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
-  scale_color_manual(values = c("blue","orange","orange")) +
-  scale_shape_manual(values = c(15,19,21)) +
-  scale_linetype_manual(values = c("solid","solid","dotted")) +
-  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
-  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-  stat_summary(geom="point",position = position_dodge(0.2),size=3,fill="white") +
-  # facet_grid(. ~ first) +
-  theme_bw()
-# figB
 
 
+# Experiment 1
+# collapse
+wfe <- lfe %>% group_by(participant, task, phase, condition2, blocks, blocksPhase, blocksStats) %>%
+  summarise(pCorr = mean(response.corr,na.rm=T)) %>% ungroup()
+ggplot(wfe, aes(x=blocks, y=pCorr, col=condition2)) + stat_summary(geom="line")
 
-# read output data
-# par <- read.csv("../ALANN/figures/mod2_50t_n16_rho0.05_mu0.05_partial/exp_partial_mod2_n16.csv")
-par <- read.csv("../ALANN/output/exp_partial_mod2_n32_beta0.9_rho0.01_mu0.01.csv")
-par$task <- "partial"
-# tot <- read.csv("../ALANN/figures/mod2_50t_n16_rho0.05_mu0.05_total/exp_total_mod2_n16.csv")
-tot <- read.csv("../ALANN/output/exp_total_mod2_n32_beta0.9_rho0.01_mu0.01.csv")
-tot$task <- "total"
+# Main ANOVA + plot
+tmp <- wfe[wfe$phase == 2 & wfe$condition2 != "partial-nonreversed",]
+ggplot(tmp, aes(x=blocksStats, y=pCorr, col=condition2)) + stat_summary(geom="line")
+mod <- aov(pCorr ~ condition2 * as.factor(blocksStats) + 
+             Error(participant/(condition2 + as.factor(blocksStats))), data = tmp)
+summary(mod); effectsize::eta_squared(mod, partial = TRUE, ci.lvl = .95, 
+                                      alternative = "two.sided")
+# Follow-up ANOVA + plot
+tmp <- wfe[wfe$blocksStats == 0 & wfe$phase == 2 & wfe$condition2 != "partial-nonreversed",]
+ggplot(tmp, aes(x=condition2, y=pCorr, col=condition2)) + stat_summary()
+mod <- aov(pCorr ~ condition2 + Error(participant/(condition2)), data = tmp)
+summary(mod); effectsize::eta_squared(mod, partial = TRUE, ci.lvl = .95, 
+                                      alternative = "two.sided")
 
-source("../ALANN/functions.R")
-db <- f_combine_sims(par,tot) 
+# Experiment 2
+# collapse
+wfh <- lfh %>% group_by(participant, task, phase, condition2, blocks, blocksPhase, blocksStats) %>%
+  summarise(pCorr = mean(response.corr,na.rm=T)) %>% ungroup()
+ggplot(wfh, aes(x=blocks, y=pCorr, col=condition2)) + stat_summary(geom="line")
 
+tmp <- wfh[wfh$phase == 2 & wfh$condition2 != "partial-nonreversed",]
+ggplot(tmp, aes(x=blocks, y=pCorr, col=condition2)) + stat_summary(geom="line")
+mod <- aov(pCorr ~ condition2 * as.factor(blocksStats) + 
+             Error(participant/(condition2 + as.factor(blocksStats))), data = tmp)
+summary(mod); effectsize::eta_squared(mod, partial = TRUE, ci.lvl = .95, 
+                                      alternative = "two.sided")
 
-
-# visualize
-if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
-db$condition <- factor(db$condition, levels = c("reversed","nonreversed"))
-db$condition2 <- paste0(db$task,"-",db$condition)
-db$condition2 <- factor(db$condition2, levels = c("total-reversed","partial-reversed","partial-nonreversed"))
-figC <- ggplot(db[,], aes(x=nBlock,y=discScore,
-                           col=condition2,linetype=condition2)) +
-  labs(title = expression(rho==0.01*`;`~mu==0.01),
-       x="blocks",col="Task and Condition",
-       linetype="Task and Condition",#y=expression(act[target]*`/(`*act[target]+act[other]*`)`)
-       y="correct score") +
-  coord_cartesian(ylim = c(0,1)) +
-  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
-  geom_vline(xintercept = 200.5, col="black", alpha=0.5) +
-  scale_x_continuous(breaks = seq(0,400,by=100)) +
-  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
-  scale_color_manual(values = c("blue","orange","orange")) +
-  scale_linetype_manual(values = c("solid","solid","dotted")) +
-  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
-  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-  theme_bw() 
-# figC
-
-# read output data
-# par <- read.csv("../ALANN/figures/mod2_50t_n16_rho0.05_mu0.01_partial/exp_partial_mod2_n16.csv")
-par <- read.csv("../ALANN/output/exp_partial_mod2_n32_beta0.9_rho0.01_mu1e-04.csv")
-par$task <- "partial"
-# tot <- read.csv("../ALANN/figures/mod2_50t_n16_rho0.05_mu0.01_total/exp_total_mod2_n16.csv")
-tot <- read.csv("../ALANN/output/exp_total_mod2_n32_beta0.9_rho0.01_mu1e-04.csv")
-tot$task <- "total"
-
-db <- f_combine_sims(par,tot) 
-
-
-
-# visualize
-if (!require(ggplot2)) {install.packages("ggplot2")}; library(ggplot2)
-db$condition <- factor(db$condition, levels = c("reversed","nonreversed"))
-db$condition2 <- paste0(db$task,"-",db$condition)
-db$condition2 <- factor(db$condition2, levels = c("total-reversed","partial-reversed","partial-nonreversed"))
-figD <- ggplot(db[,], aes(x=nBlock,y=discScore,
-                          col=condition2,linetype=condition2)) +
-  labs(title = expression(rho==0.01*`;`~mu==0.0001),
-       x="blocks",col="Task and Condition",
-       linetype="Task and Condition",#y=expression(act[target]*`/(`*act[target]+act[other]*`)`)
-       y="correct score") +
-  coord_cartesian(ylim = c(0,1)) +
-  geom_hline(yintercept = 0.5, col="black", alpha=0.5) +
-  geom_vline(xintercept = 200.5, col="black", alpha=0.5) +
-  scale_x_continuous(breaks = seq(0,400,by=100)) +
-  scale_y_continuous(breaks = seq(0,1,by=0.5)) +
-  scale_color_manual(values = c("blue","orange","orange")) +
-  scale_linetype_manual(values = c("solid","solid","dotted")) +
-  stat_summary(geom="line",position = position_dodge(0.2),size=1.2) +
-  stat_summary(geom="errorbar",position = position_dodge(0.2)) +
-  theme_bw() 
-# figD
-
-
-
-
-plot <- ggarrange(figA,figC,figB,figD,nrow=2,ncol=2,common.legend = T,
-                  labels = c("A","C","B","D"))
-# plot
-
-ggsave(paste0("../ALANN/figures/fig2.png"), dpi = 2400, limitsize = TRUE,
-       plot = plot,
-       units = "in",
-       width = 6, #6000
-       height = 4.5) #4800
-
-
-
-
-
-
-# # split by conditions
-# total_reversed <- temp[temp$condition2 == "total-reversed",]
-# partial_reversed <- temp[temp$condition2 == "partial-reversed",]
-# partial_unreversed <- temp[temp$condition2 == "partial-nonreversed",]
-# # do they have the same order? 
-# sum(total_reversed$participant == partial_reversed$participant)
-# sum(partial_reversed$participant == partial_unreversed$participant)
-# # combine
-# collapsed <- cbind(total_reversed[,],partial_reversed[,c("pCorrect","mRt")],partial_unreversed[,c("pCorrect","mRt")])
-# collapsed$condition2 <- NULL
-
-
-relCols <- c("participant","first","difficulty","set")
-# reorder in wide format data base
-for (i in 1:length(participantsE)) {
-  # one participant
-  temp <- collapsedE[collapsedE$participant==participantsE[i],]
-  
-  if (nrow(temp) > 0) {
-    # in order
-    temp <- temp[order(temp$condition2,temp$blocks),]
-    
-    corr <- data.frame(t(temp$pCorrect))
-    colnames(corr) <- paste0(temp$blocks,"-",temp$condition2)
-    rt <- data.frame(t(temp$medRt))
-    colnames(rt) <- paste0(temp$blocks,"-",temp$condition2)
-    if (i == 1) {
-      wf_corr <- cbind(temp[1,relCols],corr)
-      wf_rt <- cbind(temp[1,relCols],rt)
-    } else {
-      wf_corr <- rbind(wf_corr,cbind(temp[1,relCols],corr))
-      wf_rt <- rbind(wf_rt,cbind(temp[1,relCols],rt))
-    }
-  }
-}
-write.csv(wf_corr,"data/corr_average_blocks_easy.csv",row.names = F)
-write.csv(wf_rt,"data/rt_median_blocks_easy.csv",row.names = F)
-
-
-relCols <- c("participant","first","difficulty","set")
-# reorder in wide format data base
-for (i in 1:length(participantsH)) {
-  # one participant
-  temp <- collapsedH[collapsedH$participant==participantsH[i],]
-  
-  if (nrow(temp) > 0) {
-    # in order
-    temp <- temp[order(temp$condition2,temp$blocks),]
-    
-    corr <- data.frame(t(temp$pCorrect))
-    colnames(corr) <- paste0(temp$blocks,"-",temp$condition2)
-    rt <- data.frame(t(temp$medRt))
-    colnames(rt) <- paste0(temp$blocks,"-",temp$condition2)
-    if (i == 1) {
-      wf_corr <- cbind(temp[1,relCols],corr)
-      wf_rt <- cbind(temp[1,relCols],rt)
-    } else {
-      wf_corr <- rbind(wf_corr,cbind(temp[1,relCols],corr))
-      wf_rt <- rbind(wf_rt,cbind(temp[1,relCols],rt))
-    }
-  }
-}
-write.csv(wf_corr,"data/corr_average_blocks_hard.csv",row.names = F)
-write.csv(wf_rt,"data/rt_median_blocks_hard.csv",row.names = F)
+tmp <- wfe[wfe$blocksStats == 0 & wfe$phase == 2 & wfe$condition2 != "partial-nonreversed",]
+ggplot(tmp, aes(x=condition2, y=pCorr, col=condition2)) + stat_summary()
+mod <- aov(pCorr ~ condition2 + Error(participant/(condition2)), data = tmp)
+summary(mod); effectsize::eta_squared(mod, partial = TRUE, ci.lvl = .95, 
+                                      alternative = "two.sided")

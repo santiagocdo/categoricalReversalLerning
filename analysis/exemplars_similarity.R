@@ -6,7 +6,7 @@ library(ggplot2)
 library(dplyr)
 library(reshape2)
 library(ggpubr)
-
+if (!require(combinat)) {install.packages("combinat")}; library(combinat)
 
 
 # list of files
@@ -167,6 +167,7 @@ text(mds_result, labels = 1:8, pos = 3)  # Add labels if needed
 
 
 
+if (!require(bayestestR)) {install.packages("bayestestR")}; library(bayestestR) # 
 # read a csv that has been already averaged. This one contains the similariy matrices
 # for all the subjects and only half of the off diagonal matrix
 dist_matrix <- read.csv("exemplars_similarity/similarityMatrix_allPartOffDiagonals.csv")
@@ -250,7 +251,7 @@ anno <- data.frame(x1 = c(1), x2 = c(2), y1 = c(8.8), y2 = c(9),
 
 t.test(lf_dist1$value[lf_dist1$group=="cat1"],lf_dist1$value[lf_dist1$group=="cat2"])
 shapiro.test(lf_dist1$value[lf_dist1$group=="cat1"])
-ks.test(lf_dist1$value[lf_dist1$group=="cat1"],"pnorm")
+# ks.test(lf_dist1$value,"pnorm",mean=mean(lf_dist1$value),sd=sd(lf_dist1$value))
 wilcox.test(lf_dist1$value[lf_dist1$group=="cat1"],lf_dist1$value[lf_dist1$group=="cat2"])
 p_task1_cat <- ggplot(lf_dist1[lf_dist1$cat_type=="within",], 
        aes(x=group,y=value)) + 
@@ -264,12 +265,16 @@ p_task1_cat <- ggplot(lf_dist1[lf_dist1$cat_type=="within",],
   scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
   scale_x_discrete(labels=c("A to D","E to H")) +
   theme_classic()
+m1 <- lm(value ~ group, lf_dist1[lf_dist1$group!="between",])
+m0 <- lm(value ~ 1, lf_dist1[lf_dist1$group!="between",])
+anova(m1,m0); BIC(m1,m0)
+bayesfactor_models(m0, denominator = m1, verbose = T)
 
 t.test(lf_dist1$value[lf_dist1$cat_type=="between"],lf_dist1$value[lf_dist1$cat_type!="between"])
 shapiro.test(lf_dist1$value[lf_dist1$cat_type=="between"])
-ks.test(lf_dist1$value[lf_dist1$cat_type=="between"],"pnorm",
-        mean=mean(lf_dist1$value[lf_dist1$cat_type=="between"]),
-        sd=sd(lf_dist1$value[lf_dist1$cat_type=="between"]))
+# ks.test(lf_dist1$value[lf_dist1$cat_type=="between"],"pnorm",
+#         mean=mean(lf_dist1$value[lf_dist1$cat_type=="between"]),
+#         sd=sd(lf_dist1$value[lf_dist1$cat_type=="between"]))
 wilcox.test(lf_dist1$value[lf_dist1$cat_type=="between"],lf_dist1$value[lf_dist1$cat_type!="between"])
 p_task1_type <- ggplot(lf_dist1, aes(x=cat_type,y=value)) + 
   labs(x = "Set 1 (A to H)", y="Euclidian Distance") +
@@ -282,6 +287,10 @@ p_task1_type <- ggplot(lf_dist1, aes(x=cat_type,y=value)) +
   scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
   scale_x_discrete(labels=c("Between Cat.","Within Cat.")) +
   theme_classic()
+m1 <- lm(value ~ cat_type, lf_dist1)
+m0 <- lm(value ~ 1, lf_dist1)
+anova(m1,m0); BIC(m1,m0)
+bayesfactor_models(m0, denominator = m1, verbose = T)
 
 
 
@@ -304,9 +313,7 @@ anno <- data.frame(x1 = c(1), x2 = c(2), y1 = c(8.8), y2 = c(9),
 
 t.test(lf_dist2$value[lf_dist2$group=="cat1"], lf_dist2$value[lf_dist2$group=="cat2"])
 shapiro.test(lf_dist2$value[lf_dist2$group=="cat1"])
-ks.test(lf_dist2$value[lf_dist2$group=="cat1"], "pnorm", 
-        mean=mean(lf_dist2$value[lf_dist2$group=="cat1"]),
-        sd=sd(lf_dist2$value[lf_dist2$group=="cat1"]))
+# ks.test(lf_dist2$value,"pnorm",mean=mean(lf_dist2$value),sd=sd(lf_dist2$value))
 wilcox.test(lf_dist2$value[lf_dist2$group=="cat1"], lf_dist2$value[lf_dist2$group=="cat2"])
 p_task2_cat <- ggplot(lf_dist2[lf_dist2$cat_type=="within",], 
                       aes(x=group,y=value)) + 
@@ -320,12 +327,16 @@ p_task2_cat <- ggplot(lf_dist2[lf_dist2$cat_type=="within",],
   scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
   scale_x_discrete(labels=c("I to L", "M to P")) +
   theme_classic()
+m1 <- lm(value ~ group, lf_dist2[lf_dist2$group!="between",])
+m0 <- lm(value ~ 1, lf_dist2[lf_dist2$group!="between",])
+anova(m1,m0); BIC(m1,m0)
+bayesfactor_models(m0, denominator = m1, verbose = T)
 
 t.test(lf_dist2$value[lf_dist2$cat_type=="between"],lf_dist2$value[lf_dist2$cat_type!="between"])
 shapiro.test(lf_dist2$value[lf_dist2$cat_type=="between"])
-ks.test(lf_dist2$value[lf_dist2$cat_type=="between"],"pnorm",
-        mean=mean(lf_dist2$value[lf_dist2$cat_type=="between"]),
-        sd=sd(lf_dist2$value[lf_dist2$cat_type=="between"]))
+# ks.test(lf_dist2$value[lf_dist2$cat_type=="between"],"pnorm",
+#         mean=mean(lf_dist2$value[lf_dist2$cat_type=="between"]),
+#         sd=sd(lf_dist2$value[lf_dist2$cat_type=="between"]))
 wilcox.test(lf_dist2$value[lf_dist2$cat_type=="between"],lf_dist2$value[lf_dist2$cat_type!="between"])
 p_task2_type <- ggplot(lf_dist2, aes(x=cat_type,y=value)) + 
   labs(x = "Set 2 (I to P)", y="Euclidian Distance") +
@@ -338,6 +349,10 @@ p_task2_type <- ggplot(lf_dist2, aes(x=cat_type,y=value)) +
   scale_y_continuous(breaks = seq(0,8,by=2), limits = c(0,9.5)) +
   scale_x_discrete(labels=c("Between Cat.","Within Cat.")) +
   theme_classic()
+m1 <- lm(value ~ cat_type, lf_dist2)
+m0 <- lm(value ~ 1, lf_dist2)
+anova(m1,m0); BIC(m1,m0)
+bayesfactor_models(m0, denominator = m1, verbose = T)
 
 plot <- annotate_figure(ggarrange(p_task1_cat,p_task2_cat,
                                   p_task1_type,p_task2_type, labels=LETTERS[1:4]),

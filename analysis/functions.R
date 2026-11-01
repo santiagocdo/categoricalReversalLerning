@@ -85,6 +85,12 @@ cleanEasy <- function () {
       temp$goodSubject <- F
     }
     
+    # add trial per exemplar counter
+    temp <- as.data.frame(temp %>%
+                            group_by(Exemplars) %>%
+                            mutate(ex_counter = row_number()) %>%
+                            ungroup())
+    
     # combine subjects
     if (i == 1) {
       lf <- temp
@@ -192,6 +198,12 @@ cleanHard <- function() {
       temp$goodSubject <- F
     }
     
+    # add trial per exemplar counter
+    temp <- as.data.frame(temp %>%
+                            group_by(Exemplars) %>%
+                            mutate(ex_counter = row_number()) %>%
+                            ungroup())
+    
     # combine subjects
     if (i == 1) {
       lf <- temp
@@ -218,7 +230,7 @@ cleanHard <- function() {
 # # # # # # # # # #  # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-combineSimConditions <- function(par,tot) {
+combineSimConditions <- function(par, tot) {
   # ggplot(tot, aes(x=nBlock,y=actO,col=trialType)) +
   #   stat_summary(geom = "line") +
   #   facet_grid(.~out) +
