@@ -2,6 +2,7 @@
 PsychoPy program for a Categorical Reversal Learning task using fractals as stimuli (https://www.enchgallery.com/index.htm).
 22/02/2024
 
+This repository contain the tasks and analysis for the manuscript: https://osf.io/preprints/psyarxiv/sbncd_v1
 
 # the task
 The experiment implemented in this repository has two versions: easy (4 exemplars) and hard (8 exemplars).
@@ -28,7 +29,7 @@ But the tasks differ in the Reversal second phase:
 Hard: 4 blocks with 2 presentation of each examplar each, 8 trials per exemplar
 Easy: 4 blocks with 2 presentation of each examplar each, 8 trials per exemplar
 
-### Total:
+###  Total:
 Ex1 - Cat2;
 Ex2 - Cat2;
 Ex3 - Cat2;

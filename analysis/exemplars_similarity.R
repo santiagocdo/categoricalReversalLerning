@@ -151,9 +151,9 @@ for (i in 1:length(exs1to8)) {
 data <- outputMatrix[!is.na(outputMatrix$exA),3:18]
 # Compute distance matrix
 dist_matrix <- dist(t(data))
-dist_matrix <- read.csv("exemplars_similarity/similarityMatrixAverage_task1.csv")
+# dist_matrix <- read.csv("exemplars_similarity/similarityMatrixAverage_task1.csv")
 # dist_matrix <- read.csv("exemplars_similarity/similarityMatrixAverage_task2.csv")
-dist_matrix <- dist_matrix[,-1]
+# dist_matrix <- dist_matrix[,-1]
 dist_matrix <- as.dist(dist_matrix)
 
 # Perform Classical MDS
